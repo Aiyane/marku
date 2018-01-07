@@ -213,8 +213,8 @@ class ListToken(BaseBigToken):
     def match(lines):
         return ListToken.has_leader(lines[0].strip())
 
-class ListItem(BaseBigToken):
 
+class ListItem(BaseBigToken):
     """这是一个一行的ListItem"""
 
     def __init__(self, line):
@@ -229,8 +229,8 @@ class ListItem(BaseBigToken):
             content = ''
         super.__init__(content, little_token.deal_with_line)
 
-class TableToken(BaseBigToken):
 
+class TableToken(BaseBigToken):
     """这是一个表格Token"""
 
     def __init__(self, lines):
@@ -240,7 +240,64 @@ class TableToken(BaseBigToken):
 
         """
         self._lines = lines
-        pass
+        if lines[1].find('---') != -1:
+            self.aligns = self.aligns_deal_with(lines[1])
+            self._kids = tuple(
+                TableRow(line, self.aligns) for line in lines.pop(1))
+            _kids[0].header = True
+        else:
+            self.aligns = [0]
+            self._kids = tuple(TableRow(line, self.aligns) for line in lines)
+
+    @property
+    def aligns_deal_with(line):
+        aligns = line[1:-2].split('|').strip()
+        res = []
+        for align in aligns:
+            if align[:4] == ':---' and align[-4:] == '---:':
+                res.append(1)
+            elif align[-4:] == '---:':
+                res.append(2)
+            else:
+                res.append(0)
+        return res
+
+    @property
+    def match(lines):
+        return lines[0][0] == '|' and lines[0][-2] == '|' and lines[-1][0] == '|' and lines[-1][-2] == '|'
+
+
+class TableRow(BaseBigToken):
+    """Table一行的Token"""
+
+    def __init__(self, line, aligns=[0], header=False):
+        """一行的Table的构造函数
+
+        :line: TODO
+        :aligns: TODO
+
+        """
+        self.header = header
+        self._line = line[1:-2].split('|').strip()
+        self._aligns = aligns
+        self._kid = tuple(
+            TableCell(line, align)
+            for line, align in zip(self._line, self._aligns))
+
+
+class TableCell(BaseBigToken):
+    """一行中一个元素的Token"""
+
+    def __init__(self, content, align=0):
+        """构造函数
+
+        :line: TODO
+        :align: TODO
+
+        """
+        self.align = align
+        super().__init__(content, little_token.deal_with_line)
+
 
 _token_types = [
     'HeadToken', 'QuoteToken', 'BlockToken', 'SeparatorToken', 'ListToken',
