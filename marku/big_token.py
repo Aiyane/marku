@@ -15,7 +15,7 @@ def deal_with(lines, root=None):
     return deal_wither.deal_with(lines, _token_types, ParagraphToken, root)
 
 
-class BaesBigToken(object):
+class BaseBigToken(object):
     """
     基础Token
     """
@@ -30,17 +30,17 @@ class BaesBigToken(object):
         return self._kids
 
 
-class DocumentToken(BaesBigToken):
+class DocumentToken(BaseBigToken):
     """这是基础文档类"""
 
     def __init__(self, lines):
 
-        BaesBigToken.__init__(self)
+        BaseBigToken.__init__(self)
 
         self._kids = tuple(deal_with(lines, root=self))
 
 
-class HeadToken(BaesBigToken):
+class HeadToken(BaseBigToken):
     """这是标题Token"""
 
     def __init__(self, lines):
@@ -79,7 +79,7 @@ class HeadToken(BaesBigToken):
                                   or lines[-1].startswith('==='))
 
 
-class QuoteToken(BaesBigToken):
+class QuoteToken(BaseBigToken):
     """引用Token"""
 
     def __init__(self, lines):
@@ -102,7 +102,7 @@ class QuoteToken(BaesBigToken):
         return lines[0].startswith('> ')
 
 
-class ParagraphToken(BaesBigToken):
+class ParagraphToken(BaseBigToken):
     """段落Token, 一种基本的Token, 由于是默认的块Token, 所以不需要match函数"""
 
     def __init__(self, lines):
@@ -115,7 +115,7 @@ class ParagraphToken(BaesBigToken):
         self._lines = lines
 
 
-class BlockCodeToken(BaesBigToken):
+class BlockCodeToken(BaseBigToken):
     """多行代码Token"""
 
     def __init__(self, liens):
@@ -141,7 +141,7 @@ class BlockCodeToken(BaesBigToken):
         return True
 
 
-class SeparatorToken(BaesBigTokens):
+class SeparatorToken(BaseBigToken):
     """这是分隔符Token"""
 
     accept_params = frozenset(('---\n', '===\n', '***\n', '* * *\n'))
@@ -154,15 +154,11 @@ class SeparatorToken(BaesBigTokens):
         return len(lines) == 1 and lines[0] in SeparatorToken.accept_params
 
 
-class ListToken(BaesBigToken):
-
+class ListToken(BaseBigToken):
     """这是一个列表Token"""
 
     def __init__(self, lines):
         """列表Token的构造函数
-
-        :lines: TODO
-
         """
         self._lines = lines
         self._kids = list(List.build_list(lines))
@@ -172,9 +168,78 @@ class ListToken(BaesBigToken):
         else:
             self.start = None
 
-
     @property
     def build_list(lines):
+        """
+        这里逻辑稍微复杂, 所以我解释一下
+        判断每一行,
+        - 问: 这一行的列表标志在开头吗?
+            *是的, 这是一个普通行
+                - 问: 是否它的前许多行是嵌套的?
+                    + 是的, 所以将list_buffer用ListToken包裹起来, 再用ListItem包裹这一行
+                    + 不是, 所以就是一个普通的列表行, 用ListItem包裹起来
+            * 不是, 不在开头, 不是一个普通的列表
+                - 问: 去掉四个空格这一行的标志在开头吗?
+                    + 是的, 这是一个嵌套的列表, 所以放到list_buffer中
+                    + 不是, 不是一个嵌套的列表, 但还是当作嵌套列表表示, 放到list_buffer中
+        """
+        list_buffer = []  # 这里存嵌套行的内容
+        for line in lines:
+
+            if ListToken.has_leader(line):
+
+                if list_buffer:
+                    yield ListToken(list_buffer)
+                    list_buffer.clear()
+                yield ListItem(line)  # 把这一行yield出去
+
+            elif line.startswith(' ' * 4):
+                line = line[4:]
+                list_buffer.append(line)
+
+            else:
+                list_buffer.append(line)  # 自动算作子行
+
+        if list_buffer:
+            yield ListToken(list_buffer)
+            list_buffer.clear()
+
+    @property
+    def has_leader(line):
+        return line.startswith(
+            ('- ', '* ', '+ ')) or line.split(' ', 1)[0][:-1].isdigit()
+
+    @property
+    def match(lines):
+        return ListToken.has_leader(lines[0].strip())
+
+class ListItem(BaseBigToken):
+
+    """这是一个一行的ListItem"""
+
+    def __init__(self, line):
+        """ListItem的构造函数
+
+        :line: TODO
+
+        """
+        try:
+            content = line.split(' ', 1)[1].strip()
+        except Exception:
+            content = ''
+        super.__init__(content, little_token.deal_with_line)
+
+class TableToken(BaseBigToken):
+
+    """这是一个表格Token"""
+
+    def __init__(self, lines):
+        """表格Token的构造函数
+
+        :lines: TODO
+
+        """
+        self._lines = lines
         pass
 
 _token_types = [
