@@ -54,8 +54,8 @@ def deal_with(lines, token_types, init_token, root=None):
     :lines: 多行列表
     :token_types: 处理的Token类型
     :deal_func: 默认Token
-    :root: 权限
-    :returns: 返回Toke
+    :root: 根结点
+    :returns: 返回Token
 
     """
     line_buffer = []
@@ -72,11 +72,11 @@ def deal_with(lines, token_types, init_token, root=None):
 def _match_for_token(line_buffer, token_types, init_token, root):
     """这是一个尝试用token_types中的类型构造Token的方法
 
-    :line_buffer: TODO
-    :token_types: TODO
-    :init_token: TODO
-    :root: TODO
-    :returns: TODO
+    :line_buffer: 多行, 块级的, 是由'\n'区分出来的
+    :token_types: 所有可以处理的Token类型
+    :init_token: 默认处理成的Token, 一般默认为段落
+    :root: 根结点, 文档Token
+    :returns: 返回Token
 
     """
     for token_type in token_types:

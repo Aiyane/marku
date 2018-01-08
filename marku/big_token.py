@@ -304,7 +304,6 @@ class TableCell(BaseBigToken):
         """构造函数"""
         super().__init__(content, little_token.deal_with_line)
 
-
 _token_types = [
     'HeadToken', 'QuoteToken', 'BlockToken', 'SeparatorToken', 'ListToken',
     'TableToken'
