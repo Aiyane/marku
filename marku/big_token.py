@@ -131,7 +131,7 @@ class BlockCodeToken(BaseBigToken):
             self.language = ''
         self._kids = (little_token.RawTextToken(content), )
 
-    @property
+    @staticmethod
     def match(lines):
         if line[0].startswith('```') and lines[-1] == '```\n':
             return True
@@ -149,7 +149,7 @@ class SeparatorToken(BaseBigToken):
     def __init__(self, lines):
         self.lines = lines
 
-    @property
+    @staticmethod
     def macth(lines):
         return len(lines) == 1 and lines[0] in SeparatorToken.accept_params
 
@@ -168,7 +168,7 @@ class ListToken(BaseBigToken):
         else:
             self.start = None
 
-    @property
+    @staticmethod
     def build_list(lines):
         """
         这里逻辑稍微复杂, 所以我解释一下
@@ -204,12 +204,12 @@ class ListToken(BaseBigToken):
             yield ListToken(list_buffer)
             list_buffer.clear()
 
-    @property
+    @staticmethod
     def has_leader(line):
         return line.startswith(
             ('- ', '* ', '+ ')) or line.split(' ', 1)[0][:-1].isdigit()
 
-    @property
+    @staticmethod
     def match(lines):
         return ListToken.has_leader(lines[0].strip())
 
@@ -249,7 +249,7 @@ class TableToken(BaseBigToken):
             self.aligns = [0]
             self._kids = tuple(TableRow(line, self.aligns) for line in lines)
 
-    @property
+    @staticmethod
     def aligns_deal_with(line):
         aligns = line[1:-2].split('|').strip()
         res = []
@@ -262,7 +262,7 @@ class TableToken(BaseBigToken):
                 res.append(0)
         return res
 
-    @property
+    @staticmethod
     def match(lines):
         return lines[0][0] == '|' and lines[0][-2] == '|' and lines[-1][0] == '|' and lines[-1][-2] == '|'
 
