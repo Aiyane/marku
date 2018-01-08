@@ -11,6 +11,12 @@ __all__ = [
 
 
 def deal_with(lines, root=None):
+    # 处理Token的函数, 接收文档Token的调用, 目的是构造各个块Token
+    # 参数:
+    #   lines代表每一行
+    #   _token_types代表需要构造的Token, 见文档下方
+    #   ParagraphToken代表默认Token, 即默认认为这个块是一个段落
+    #   root代表根
 
     return deal_wither.deal_with(lines, _token_types, ParagraphToken, root)
 
@@ -18,6 +24,10 @@ def deal_with(lines, root=None):
 class BaseBigToken(object):
     """
     基础Token
+    参数:
+        lines代表多行
+        deal_func代表处理函数, 一般块处理完就是行内处理
+        _kids孩子
     """
 
     def __init__(self, lines, deal_func):
@@ -25,13 +35,16 @@ class BaseBigToken(object):
 
     @property
     def kids(self):
+        """
+        这里利用property装饰器将这个方法变成一个属性, 支持调用时才构造
+        """
         if isinstance(self.kids, GeneratorType):
             self._kids = tuple(self._kids)
         return self._kids
 
 
 class DocumentToken(BaseBigToken):
-    """这是基础文档类"""
+    """这是基础文档类, 也是整个文档构造Token的入口"""
 
     def __init__(self, lines):
 
@@ -41,16 +54,13 @@ class DocumentToken(BaseBigToken):
 
 
 class HeadToken(BaseBigToken):
-    """这是标题Token"""
+    """这是标题Token, 处理的是例如('# 标题', '## 标题2', '### 标题3 ###')
+    或者是例如('---', '===')这样的标志符
+    """
 
     def __init__(self, lines):
         """标题构造函数
-
-        :lines: TODO
-
         """
-
-        self._lines = lines
         if len(lines) == 1:
             hashes, content = lines[0].split('# ', 1)
             content = content.split(' #', 1)[0].strip()
@@ -67,10 +77,6 @@ class HeadToken(BaseBigToken):
     @staticmethod
     def match(lines):
         """匹配函数
-
-        :lines: TODO
-        :returns: TODO
-
         """
         if (len(lines) == 1 and lines[0].startswith('#')
                 and lines[0].find('# ') != -1):
@@ -80,13 +86,11 @@ class HeadToken(BaseBigToken):
 
 
 class QuoteToken(BaseBigToken):
-    """引用Token"""
+    """引用Token, 处理的是例如('> ')这样的引用
+    """
 
     def __init__(self, lines):
         """引用Token的构造函数
-
-        :lines: TODO
-
         """
         self._lines = lines
         content = []
@@ -107,16 +111,19 @@ class ParagraphToken(BaseBigToken):
 
     def __init__(self, lines):
         """段落Token的构造函数
-
-        :lines: TODO
-
         """
         content = ''.join(lines).replace('\n', ' ').strip()
         self._lines = lines
 
 
 class BlockCodeToken(BaseBigToken):
-    """多行代码Token"""
+    """多行代码Token
+    处理的是类似
+    ```python
+    print("Hello, world!")
+    ```
+    这样的多行代码块
+    """
 
     def __init__(self, liens):
         """多行代码Token的构造函数
@@ -142,7 +149,9 @@ class BlockCodeToken(BaseBigToken):
 
 
 class SeparatorToken(BaseBigToken):
-    """这是分隔符Token"""
+    """这是分隔符Token
+    处理的是例如('---', '===', '***', '* * *')这样的分隔符标志
+    """
 
     accept_params = frozenset(('---\n', '===\n', '***\n', '* * *\n'))
 
@@ -155,7 +164,9 @@ class SeparatorToken(BaseBigToken):
 
 
 class ListToken(BaseBigToken):
-    """这是一个列表Token"""
+    """这是一个列表Token
+    处理的是类似('- ', '1.')开头这样的无序或有序的列表
+    """
 
     def __init__(self, lines):
         """列表Token的构造函数
@@ -174,7 +185,7 @@ class ListToken(BaseBigToken):
         这里逻辑稍微复杂, 所以我解释一下
         判断每一行,
         - 问: 这一行的列表标志在开头吗?
-            *是的, 这是一个普通行
+            * 是的, 这是一个普通行
                 - 问: 是否它的前许多行是嵌套的?
                     + 是的, 所以将list_buffer用ListToken包裹起来, 再用ListItem包裹这一行
                     + 不是, 所以就是一个普通的列表行, 用ListItem包裹起来
@@ -215,7 +226,9 @@ class ListToken(BaseBigToken):
 
 
 class ListItem(BaseBigToken):
-    """这是一个一行的ListItem"""
+    """这是一个一行的ListItem
+    List的行内元素
+    """
 
     def __init__(self, line):
         """ListItem的构造函数
@@ -231,13 +244,16 @@ class ListItem(BaseBigToken):
 
 
 class TableToken(BaseBigToken):
-    """这是一个表格Token"""
+    """这是一个表格Token
+    处理的是
+        | 标题1 | 标题2 |
+        | :---  | ---:  |
+        | 内容1 | 内容2 |
+    这样的表格形式, 注意前后的'|'不能省略
+    """
 
     def __init__(self, lines):
         """表格Token的构造函数
-
-        :lines: TODO
-
         """
         self._lines = lines
         if lines[1].find('---') != -1:
@@ -272,10 +288,6 @@ class TableRow(BaseBigToken):
 
     def __init__(self, line, aligns=[0], header=False):
         """一行的Table的构造函数
-
-        :line: TODO
-        :aligns: TODO
-
         """
         self.header = header
         self._line = line[1:-2].split('|').strip()
@@ -289,13 +301,7 @@ class TableCell(BaseBigToken):
     """一行中一个元素的Token"""
 
     def __init__(self, content, align=0):
-        """构造函数
-
-        :line: TODO
-        :align: TODO
-
-        """
-        self.align = align
+        """构造函数"""
         super().__init__(content, little_token.deal_with_line)
 
 
