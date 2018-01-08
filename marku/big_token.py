@@ -38,7 +38,7 @@ class BaseBigToken(object):
         """
         这里利用property装饰器将这个方法变成一个属性, 支持调用时才构造
         """
-        if isinstance(self.kids, GeneratorType):
+        if isinstance(self._kids, GeneratorType):
             self._kids = tuple(self._kids)
         return self._kids
 
@@ -79,7 +79,7 @@ class HeadToken(BaseBigToken):
                 and lines[0].find('# ') != -1):
             return True
         return len(lines) > 1 and (lines[-1].startswith('---')
-                                  or lines[-1].startswith('==='))
+                                   or lines[-1].startswith('==='))
 
 
 class QuoteToken(BaseBigToken):
