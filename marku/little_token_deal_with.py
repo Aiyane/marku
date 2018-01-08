@@ -30,8 +30,8 @@ def deal_with_line(content, token_types, init_token):
         for token_type in token_types:
             match_obj = token_type.pattern.search(content, index)
             if match_obj and index < match_obj.start():
-                index = match_obj.start()
                 yield init_token(content[index:match_obj.start()])
+                index = match_obj.start()
             if match_obj.start(
             ) == index and match_obj and match_obj.start() < len(content):
                 index = match_obj.end()
