@@ -25,14 +25,18 @@ def deal_with_line(content, token_types, init_token):
     """
     index = 0
 
-    for token_type in token_types:
-        match_obj = token_type.pattern.search(content, index)
-        if index < match_obj.start():
-            index = match_obj.start()
-            yield init_token(content[index:match_obj.start()])
-        elif match_obj.start(
-        ) == index and match_obj and match_obj.start() < len(content):
-            index = match_obj.end()
-            yield token_type(match_obj)
-    if index < len(content):
-        yield init_token(index)
+    while index < len(content):
+        if_jump = index
+        for token_type in token_types:
+            match_obj = token_type.pattern.search(content, index)
+            if match_obj and index < match_obj.start():
+                index = match_obj.start()
+                yield init_token(content[index:match_obj.start()])
+            if match_obj.start(
+            ) == index and match_obj and match_obj.start() < len(content):
+                index = match_obj.end()
+                yield token_type(match_obj)
+                break
+        if if_jump == index:
+            yield init_token(content[index:])
+            index = len(content)
