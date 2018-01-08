@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 __author__ = "Aiyane"
 
-class continueLine(str):
 
+class continueLine(str):
     """这是一个持续的行, 虽然只有换行符, 但是还是要保留它, 因为它在code里"""
+
     def __new__(cls):
         return super().__new__(cls, '\n')
 
@@ -15,6 +16,7 @@ class continueLine(str):
     def __ne__(self, other):
         if other == '\n':
             return True
+
 
 def init_deal(lines):
     """这是一个初始化处理lines的方法
@@ -64,10 +66,12 @@ def deal_with(lines, token_types, init_token, root=None):
         if line != '\n':
             line_buffer.append(line)
         elif line_buffer:
-            token = _match_for_toBken(line_buffer, token_types, init_token, root)
+            token = _match_for_token(line_buffer, token_types, init_token,
+                                     root)
             if token is not None:
                 yield token
             line_buffer.clear()
+
 
 def _match_for_token(line_buffer, token_types, init_token, root):
     """这是一个尝试用token_types中的类型构造Token的方法
@@ -84,4 +88,3 @@ def _match_for_token(line_buffer, token_types, init_token, root):
             return token_type(line_buffer)
     # 如果没有找到, 就返回默认类型
     return init_token(line_buffer)
-

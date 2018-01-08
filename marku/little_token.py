@@ -22,7 +22,7 @@ def deal_with_line(content):
     :_token_types: 是全部行内Token, 见文件下面
     :RawText: 是默认构造的Token, 默认为一行纯文本
     """
-    return deal_wither.deal_with(content, _token_types, RawText)
+    return deal_wither.deal_with_line(content, _token_types, RawText)
 
 
 class BaseLittleToken(object):
@@ -126,7 +126,7 @@ class ImageToken(BaseLittleToken):
     """
     pattern = re.compile(r'\!\[(.+?)\] *\((.+?)(?: *"(.+?)")?\)')
 
-    def __init__(self):
+    def __init__(self, match_obj):
         self._kids = tuple(RawText(match_obj.group(1)), )
         self.src = match_obj.group(2)
         self.title = match_obj.group(3)
@@ -161,6 +161,6 @@ class AutoLinkToken(BaseLittleToken):
 
 # 这是能够构造的行内Token
 _token_types = [
-    'EscapeCharToken', 'EmphasisToken', 'StrongToken', 'InlineCodeToken',
-    'DeleToken', 'ImageToken', 'LinkToken', 'AutoLinkToken'
+    EscapeCharToken, EmphasisToken, StrongToken, InlineCodeToken,
+    DeleToken, ImageToken, LinkToken, AutoLinkToken
 ]

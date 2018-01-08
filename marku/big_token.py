@@ -47,9 +47,6 @@ class DocumentToken(BaseBigToken):
     """这是基础文档类, 也是整个文档构造Token的入口"""
 
     def __init__(self, lines):
-
-        BaseBigToken.__init__(self)
-
         self._kids = tuple(deal_with(lines, root=self))
 
 
@@ -81,7 +78,7 @@ class HeadToken(BaseBigToken):
         if (len(lines) == 1 and lines[0].startswith('#')
                 and lines[0].find('# ') != -1):
             return True
-        return len(line) > 1 and (liens[-1].startswith('---')
+        return len(lines) > 1 and (lines[-1].startswith('---')
                                   or lines[-1].startswith('==='))
 
 
@@ -125,14 +122,13 @@ class BlockCodeToken(BaseBigToken):
     这样的多行代码块
     """
 
-    def __init__(self, liens):
+    def __init__(self, lines):
         """多行代码Token的构造函数
         """
 
-        self._liens = liens
         if lines[0].startswith('```'):
             content = ''.join(lines[1:-1])
-            self.language = lines[0], strip()[3:]
+            self.language = lines[0].strip()[3:]
         else:
             content = ''.join([line[4:] for line in lines])
             self.language = ''
@@ -140,7 +136,7 @@ class BlockCodeToken(BaseBigToken):
 
     @staticmethod
     def match(lines):
-        if line[0].startswith('```') and lines[-1] == '```\n':
+        if lines[0].startswith('```') and lines[-1] == '```\n':
             return True
         for line in lines:
             if not line.startswith(' ' * 4):
@@ -159,7 +155,7 @@ class SeparatorToken(BaseBigToken):
         self.lines = lines
 
     @staticmethod
-    def macth(lines):
+    def match(lines):
         return len(lines) == 1 and lines[0] in SeparatorToken.accept_params
 
 
@@ -172,7 +168,7 @@ class ListToken(BaseBigToken):
         """列表Token的构造函数
         """
         self._lines = lines
-        self._kids = list(List.build_list(lines))
+        self._kids = list(ListToken.build_list(lines))
         leader = lines[0].split(' ', 1)[0]
         if leader[:-1].isdigit():
             self.start = int(leader[:-1])
@@ -240,7 +236,7 @@ class ListItem(BaseBigToken):
             content = line.split(' ', 1)[1].strip()
         except Exception:
             content = ''
-        super.__init__(content, little_token.deal_with_line)
+        super().__init__(content, little_token.deal_with_line)
 
 
 class TableToken(BaseBigToken):
@@ -260,14 +256,14 @@ class TableToken(BaseBigToken):
             self.aligns = self.aligns_deal_with(lines[1])
             self._kids = tuple(
                 TableRow(line, self.aligns) for line in lines.pop(1))
-            _kids[0].header = True
+            self._kids[0].header = True
         else:
             self.aligns = [0]
             self._kids = tuple(TableRow(line, self.aligns) for line in lines)
 
     @staticmethod
     def aligns_deal_with(line):
-        aligns = line[1:-2].split('|').strip()
+        aligns = line[1:-2].strip().split('|')
         res = []
         for align in aligns:
             if align[:4] == ':---' and align[-4:] == '---:':
@@ -290,7 +286,7 @@ class TableRow(BaseBigToken):
         """一行的Table的构造函数
         """
         self.header = header
-        self._line = line[1:-2].split('|').strip()
+        self._line = line[1:-2].strip().split('|')
         self._aligns = aligns
         self._kid = tuple(
             TableCell(line, align)
@@ -304,9 +300,10 @@ class TableCell(BaseBigToken):
         """构造函数"""
         super().__init__(content, little_token.deal_with_line)
 
+
 _token_types = [
-    'HeadToken', 'QuoteToken', 'BlockToken', 'SeparatorToken', 'ListToken',
-    'TableToken'
+    HeadToken, QuoteToken, BlockCodeToken, SeparatorToken, ListToken,
+    TableToken
 ]
 
 from ipdb import set_trace
