@@ -44,14 +44,129 @@ class BaseLittleToken(object):
         return self._kids
 
 
+class RawText(BaseLittleToken):
+    """这是一个纯文本的Token"""
+
+    def __init__(self, raw):
+        """构造函数
+
+        :raw: TODO
+
+        """
+        self.content = raw
+
+
 class EscapeCharToken(BaseLittleToken):
     """逃逸字符Token, 例如(\#)"""
+
+    pattern = re.compile()
 
     def __init__(self, match_obj):
         """构造函数
         """
-        self._match_obj = match_obj
-        pass
+        self._kids = tuple(RawText(match_obj.group(1)), )
+
+
+class EmphasisToken(BaseLittleToken):
+    """这是一个斜体的Token
+    例如('*斜体*', '_斜体_')
+    """
+    pattern = re.compile()
+
+    def __init__(self, match_obj):
+        """构造函数
+
+        这里递归有问题, 待改
+        """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+
+
+class StrongToken(BaseLittleToken):
+    """这是一个强调的Token
+    例如('**强调**', '__强调__')
+    """
+
+    def __init__(self, match_obj):
+        """构造函数
+
+        这里递归有问题, 待改
+        """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+
+
+class InlineCodeToken(BaseLittleToken):
+    """这是一个行内代码的Token
+    例如('`code`')
+    """
+    pattern = re.compile()
+
+    def __init__(self, match_obj):
+        """构造函数
+
+        :match_obj: TODO
+
+        """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+
+
+class DeleToken(BaseLittleToken):
+    """这是一个删除符Token
+    例如('~~删除符~~')
+    """
+    pattern = re.compile()
+
+    def __init__(self, match_obj):
+        """构造函数
+
+        :match_obj: TODO
+
+        """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+
+
+class ImageToken(BaseLittleToken):
+    """这是图片的Token
+    例如( '![alt](src "title")' )
+    """
+    pattern = re.compile()
+
+    def __init__(self):
+        """TODO: to be defined1. """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+        self.src = match_obj.group(2)
+        self.title = match_obj.group(3)
+
+
+class LinkToken(BaseLittleToken):
+    """这是一个链接的Token
+    例如('[name](target)')
+    """
+    pattern = re.compile()
+
+    def __init__(self, match_obj):
+        """构造函数
+
+        :match_obj: TODO
+
+        """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+        self.target = match_obj.group(2)
+
+
+class AutoLinkToken(BaseLittleToken):
+    """这是一个自动链接的Token
+    例如('<https://www.baidu.com>')
+    """
+    pattern = re.compile()
+
+    def __init__(self, match_obj):
+        """构造函数
+
+        :match_obj: TODO
+
+        """
+        self._kids = tuple(RawText(match_obj.group(1)), )
+        self.target = match_obj.group(1)
 
 
 # 这是能够构造的行内Token
