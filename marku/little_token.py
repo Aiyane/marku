@@ -49,9 +49,6 @@ class RawText(BaseLittleToken):
 
     def __init__(self, raw):
         """构造函数
-
-        :raw: TODO
-
         """
         self.content = raw
 
@@ -59,7 +56,7 @@ class RawText(BaseLittleToken):
 class EscapeCharToken(BaseLittleToken):
     """逃逸字符Token, 例如(\#)"""
 
-    pattern = re.compile()
+    pattern = re.compile(r"\\([\*\(\)\[\]\~])")
 
     def __init__(self, match_obj):
         """构造函数
@@ -71,40 +68,42 @@ class EmphasisToken(BaseLittleToken):
     """这是一个斜体的Token
     例如('*斜体*', '_斜体_')
     """
-    pattern = re.compile()
+    pattern = re.compile(r"\*((?:\*\*|[^\*])+?)\*(?!\*)|_((?:__|[^_])+?)_")
 
     def __init__(self, match_obj):
         """构造函数
-
-        这里递归有问题, 待改
         """
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = tuple(
+            RawText(
+                next(group for group in match_obj.groups()
+                     if group is not None)), )
 
 
 class StrongToken(BaseLittleToken):
     """这是一个强调的Token
     例如('**强调**', '__强调__')
     """
+    pattern = re.compile(r"\*\*(.+?)\*\*(?!\*)|__(.+)__(?!_)")
 
     def __init__(self, match_obj):
         """构造函数
 
         这里递归有问题, 待改
         """
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = tuple(
+            RawText(
+                next(group for group in match_obj.groups()
+                     if group is not None)), )
 
 
 class InlineCodeToken(BaseLittleToken):
     """这是一个行内代码的Token
     例如('`code`')
     """
-    pattern = re.compile()
+    pattern = re.compile(r"`(.+?)`")
 
     def __init__(self, match_obj):
         """构造函数
-
-        :match_obj: TODO
-
         """
         self._kids = tuple(RawText(match_obj.group(1)), )
 
@@ -113,13 +112,10 @@ class DeleToken(BaseLittleToken):
     """这是一个删除符Token
     例如('~~删除符~~')
     """
-    pattern = re.compile()
+    pattern = re.compile(r"~~(.+?)~~")
 
     def __init__(self, match_obj):
         """构造函数
-
-        :match_obj: TODO
-
         """
         self._kids = tuple(RawText(match_obj.group(1)), )
 
@@ -128,10 +124,9 @@ class ImageToken(BaseLittleToken):
     """这是图片的Token
     例如( '![alt](src "title")' )
     """
-    pattern = re.compile()
+    pattern = re.compile(r'\!\[(.+?)\] *\((.+?)(?: *"(.+?)")?\)')
 
     def __init__(self):
-        """TODO: to be defined1. """
         self._kids = tuple(RawText(match_obj.group(1)), )
         self.src = match_obj.group(2)
         self.title = match_obj.group(3)
@@ -141,13 +136,11 @@ class LinkToken(BaseLittleToken):
     """这是一个链接的Token
     例如('[name](target)')
     """
-    pattern = re.compile()
+    pattern = re.compile(
+        r"\[((?:!\[(?:.+?)\][\[\(](?:.+?)[\)\]])|(?:.+?))\] *\((.+?)\)")
 
     def __init__(self, match_obj):
         """构造函数
-
-        :match_obj: TODO
-
         """
         self._kids = tuple(RawText(match_obj.group(1)), )
         self.target = match_obj.group(2)
@@ -157,13 +150,10 @@ class AutoLinkToken(BaseLittleToken):
     """这是一个自动链接的Token
     例如('<https://www.baidu.com>')
     """
-    pattern = re.compile()
+    pattern = re.compile(r"<([^ ]+?)>")
 
     def __init__(self, match_obj):
         """构造函数
-
-        :match_obj: TODO
-
         """
         self._kids = tuple(RawText(match_obj.group(1)), )
         self.target = match_obj.group(1)
