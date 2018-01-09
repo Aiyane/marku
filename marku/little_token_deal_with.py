@@ -32,8 +32,7 @@ def deal_with_line(content, token_types, init_token):
             if match_obj and index < match_obj.start():
                 yield init_token(content[index:match_obj.start()])
                 index = match_obj.start()
-            if match_obj and match_obj.start(
-            ) == index and match_obj.start() < len(content):
+            if match_obj and match_obj.start() == index:
                 index = match_obj.end()
                 yield token_type(match_obj)
                 break
