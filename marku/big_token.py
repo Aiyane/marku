@@ -283,9 +283,8 @@ class TableToken(BaseBigToken):
         """
         self._lines = lines
         if lines[1].find('---') != -1:
-            self.aligns = self.aligns_deal_with(lines[1])
-            self._kids = tuple(
-                TableRow(line, self.aligns) for line in lines.pop(1))
+            self.aligns = self.aligns_deal_with(lines.pop(1))
+            self._kids = tuple(TableRow(line, self.aligns) for line in lines)
             self._kids[0].header = True
         else:
             self.aligns = [0]
@@ -296,6 +295,7 @@ class TableToken(BaseBigToken):
         aligns = line[1:-2].strip().split('|')
         res = []
         for align in aligns:
+            align = align.strip()
             if align[:4] == ':---' and align[-4:] == '---:':
                 res.append(1)
             elif align[-4:] == '---:':
