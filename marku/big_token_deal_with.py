@@ -4,7 +4,7 @@ __author__ = "Aiyane"
 
 
 def deal_with(lines, token_types, init_token, root=None):
-    """这是一个Token处理函数
+    """这是一个Token处理函数, 需要注意的是代码块中需要保留空行,所以单独对代码块进行了处理
 
     :lines: 多行列表
     :token_types: 处理的Token类型
@@ -31,6 +31,9 @@ def deal_with(lines, token_types, init_token, root=None):
 
 
 def find_token(line_buffer, token_types, init_token):
+    """
+    这是一个构造块级Token的函数, 没有匹配到, 用默认Token构造
+    """
     for token_type in token_types:
         if token_type.match(line_buffer):
             return token_type(line_buffer)
