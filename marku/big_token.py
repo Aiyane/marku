@@ -90,17 +90,46 @@ class QuoteToken(BaseBigToken):
         """引用Token的构造函数
         """
         self._lines = lines
-        content = []
+        self._kid = tuple(QuoteToken.build_quote(lines))
+
+    @staticmethod
+    def build_quote(lines):
+        """
+        这个函数用来处理多重引用, 可以有以下逻辑
+        问: 这个引用是以'> '开头的吗?
+            是的, 这是一个普通的引用
+            不是, 这是一个嵌套的引用
+                问: 去掉四个空格这个引用是以'> '开头的吗?
+                    是的, 它是一个普通的嵌套引用
+                    不是, 他还在后面...
+        """
+        contents = []
         for line in lines:
-            if line.startswith('> '):
-                content.append(line[2:])
-            else:
-                content.append(line)
-        super().__init__(content, deal_with)
+            if line.startswith('> ') and not contents:
+                yield QuoteItem(line)
+            elif line.startswith('> ') and contents:
+                yield QuoteToken(contents)
+                yield QuoteItem(line)
+                contents.clear()
+            elif line.startswith(' ' * 4):
+                line = line[4:]
+                contents.append(line)
+        if contents:
+            yield QuoteToken(contents)
+            contents.clear()
 
     @staticmethod
     def match(lines):
         return lines[0].startswith('> ')
+
+
+class QuoteItem(BaseBigToken):
+    """这是一个一行引用元素"""
+
+    def __init__(self, line):
+        """构造函数
+        """
+        super().__init__(line, little_token.deal_with_line)
 
 
 class ParagraphToken(BaseBigToken):
@@ -307,10 +336,9 @@ _token_types = [
     TableToken
 ]
 
-
 if __name__ == '__main__':
     # 将一个markdown文件放入同级目录, 命名为'input.md'
-    open('input.md', 'r', encoding='utf-8') as fin:
+    with open('input.md', 'r', encoding='utf-8') as fin:
         AST = DocumentToken(fin)
     # 在这里打上断点检查抽象语法树'AST'
     print(AST)
