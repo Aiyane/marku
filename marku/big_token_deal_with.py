@@ -3,15 +3,11 @@
 __author__ = "Aiyane"
 
 
-class continueLine(str):
+class codeLine(str):
     """这是一个持续的行, 虽然只有换行符, 但是还是要保留它, 因为它在code里"""
 
-    def __new__(cls):
-        return super().__new__(cls, '\n')
-
-    def __eq__(self, other):
-        if other == '\n':
-            return False
+    def __new__(cls, line):
+        return super().__new__(cls, line)
 
     def __ne__(self, other):
         if other == '\n':
@@ -29,25 +25,20 @@ def init_deal(lines):
     for line in lines:
         # 格式化tabs
         line = line.replace('\t', '    ')
-        if not code_fence and line.startswith('```'):
-            code_fence = True
-            yield '\n'
-            yield line
-        elif code_fence:
-            if line == '```\n':
-                code_fence = False
+
+        if line.startswith('```'):
+            if code_fence:
                 yield line
                 yield '\n'
-            elif line == '\n':
-                yield continueLine()
+                code_fence = False
             else:
+                code_fence = True
+                yield '\n'
                 yield line
+        elif code_fence:
+            yield codeLine(line)
         else:
             yield line
-    if code_fence:
-        code_fence = False
-        yield '```\n'
-        yield '\n'
 
 
 def deal_with(lines, token_types, init_token, root=None):
@@ -66,25 +57,11 @@ def deal_with(lines, token_types, init_token, root=None):
         if line != '\n':
             line_buffer.append(line)
         elif line_buffer:
-            token = _match_for_token(line_buffer, token_types, init_token,
-                                     root)
-            if token is not None:
-                yield token
-            line_buffer.clear()
+            for token_type in token_types:
+                if token_type.match(line_buffer):
+                    yield token_type(line_buffer)
+                    line_buffer.clear()
+            if line_buffer:
+                yield init_token(line_buffer)
+                line_buffer.clear()
 
-
-def _match_for_token(line_buffer, token_types, init_token, root):
-    """这是一个尝试用token_types中的类型构造Token的方法
-
-    :line_buffer: 多行, 块级的, 是由'\n'区分出来的
-    :token_types: 所有可以处理的Token类型
-    :init_token: 默认处理成的Token, 一般默认为段落
-    :root: 根结点, 文档Token
-    :returns: 返回Token
-
-    """
-    for token_type in token_types:
-        if token_type.match(line_buffer):
-            return token_type(line_buffer)
-    # 如果没有找到, 就返回默认类型
-    return init_token(line_buffer)
