@@ -6,9 +6,6 @@ __author__ = "Aiyane"
 class codeLine(str):
     """这是一个持续的行, 虽然只有换行符, 但是还是要保留它, 因为它在code里"""
 
-    def __init__(cls, line):
-        return super().__new__(cls, line)
-
     def __ne__(self, other):
         if other == '\n':
             return True
@@ -65,4 +62,3 @@ def deal_with(lines, token_types, init_token, root=None):
             if line_buffer:
                 yield init_token(line_buffer)
                 line_buffer.clear()
-
