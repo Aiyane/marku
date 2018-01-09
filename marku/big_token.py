@@ -307,9 +307,10 @@ _token_types = [
     TableToken
 ]
 
-from ipdb import set_trace
-if __name__ == "__main__":
-    lines = ['## 标题2']
-    test = HeadToken(lines)
-    set_trace()
-    print(test)
+
+if __name__ == '__main__':
+    # 将一个markdown文件放入同级目录, 命名为'input.md'
+    open('input.md', 'r', encoding='utf-8') as fin:
+        AST = DocumentToken(fin)
+    # 在这里打上断点检查抽象语法树'AST'
+    print(AST)
