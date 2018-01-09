@@ -31,7 +31,7 @@ class BaseBigToken(object):
     """
 
     def __init__(self, lines, deal_func):
-        self._kids = deal_func(lines)
+        self._kids = tuple(token for token in deal_func(lines))
 
     @property
     def kids(self):
@@ -67,7 +67,7 @@ class HeadToken(BaseBigToken):
                 self.level = 2
             elif lines[-1][0] == '-':
                 self.level = 1
-            content = ' '.join([line.strip() for line in lines[:1]])
+            content = ' '.join([line.strip() for line in lines[:-1]])
 
         super().__init__(content, little_token.deal_with_line)
 
@@ -132,7 +132,7 @@ class BlockCodeToken(BaseBigToken):
         else:
             content = ''.join([line[4:] for line in lines])
             self.language = ''
-        self._kids = (little_token.RawTextToken(content), )
+        self._kids = (little_token.RawText(content), )
 
     @staticmethod
     def match(lines):
