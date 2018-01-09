@@ -73,7 +73,7 @@ class EmphasisToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = tuple(
+        self._kids = (
             RawText(
                 next(group for group in match_obj.groups()
                      if group is not None)), )
@@ -87,10 +87,8 @@ class StrongToken(BaseLittleToken):
 
     def __init__(self, match_obj):
         """构造函数
-
-        这里递归有问题, 待改
         """
-        self._kids = tuple(
+        self._kids = (
             RawText(
                 next(group for group in match_obj.groups()
                      if group is not None)), )
@@ -105,7 +103,7 @@ class InlineCodeToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = (RawText(match_obj.group(1)), )
 
 
 class DeleToken(BaseLittleToken):
