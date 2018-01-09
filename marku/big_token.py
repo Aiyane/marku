@@ -111,6 +111,7 @@ class ParagraphToken(BaseBigToken):
         """
         content = ''.join(lines).replace('\n', ' ').strip()
         self._lines = lines
+        super().__init__(content, little_token.deal_with_line)
 
 
 class BlockCodeToken(BaseBigToken):
