@@ -125,7 +125,7 @@ class ImageToken(BaseLittleToken):
     pattern = re.compile(r'\!\[(.+?)\] *\((.+?)(?: *"(.+?)")?\)')
 
     def __init__(self, match_obj):
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = (RawText(match_obj.group(1)), )
         self.src = match_obj.group(2)
         self.title = match_obj.group(3)
 
@@ -140,7 +140,7 @@ class LinkToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = (RawText(match_obj.group(1)), )
         self.target = match_obj.group(2)
 
 
@@ -153,12 +153,12 @@ class AutoLinkToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = (RawText(match_obj.group(1)), )
         self.target = match_obj.group(1)
 
 
 # 这是能够构造的行内Token
 _token_types = [
-    EscapeCharToken, EmphasisToken, StrongToken, InlineCodeToken,
+    InlineCodeToken, EscapeCharToken, EmphasisToken, StrongToken,
     DeleToken, ImageToken, LinkToken, AutoLinkToken
 ]
