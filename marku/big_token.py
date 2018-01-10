@@ -90,7 +90,7 @@ class QuoteToken(BaseBigToken):
         """引用Token的构造函数
         """
         self._lines = lines
-        self._kid = tuple(QuoteToken.build_quote(lines))
+        self._kids = tuple(QuoteToken.build_quote(lines))
 
     @staticmethod
     def build_quote(lines):
