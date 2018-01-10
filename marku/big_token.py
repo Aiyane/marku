@@ -330,6 +330,7 @@ class TableCell(BaseBigToken):
 
     def __init__(self, content, align=0):
         """构造函数"""
+        self.align = align
         super().__init__(content, little_token.deal_with_line)
 
 
