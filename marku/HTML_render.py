@@ -10,6 +10,7 @@ class HTMLRenderer(BaseRender):
 
     def __init__(self):
         """构造函数 """
+        super().__init__()
 
     def StrongTokenRender(self, token):
         text = '<strong>{}</strong>'
@@ -65,7 +66,6 @@ class HTMLRenderer(BaseRender):
         inner = self.render_line(token)
         return text.format(attr=attr, inner=inner)
 
-    @staticmethod
     def SeparatorTokenRender(self, token):
         return '<hr>\n'
 
@@ -112,7 +112,7 @@ class HTMLRenderer(BaseRender):
         return text.format(inner=inner)
 
     def QuoteItemRender(self, token):
-        return self.render_line(token)
+        return '{}<br>'.format(self.render_line(token))
 
     def TableCellRender(self, token, in_header=False):
         text = '<{tag}{attr}>{inner}</tag>\n'

@@ -129,7 +129,8 @@ class QuoteItem(BaseBigToken):
     def __init__(self, line):
         """构造函数
         """
-        super().__init__(line, little_token.deal_with_line)
+        content = line[2:]
+        super().__init__(content, little_token.deal_with_line)
 
 
 class ParagraphToken(BaseBigToken):
@@ -346,6 +347,6 @@ if __name__ == '__main__':
     # 在这里打上断点检查抽象语法树'AST'
     from HTML_render import HTMLRenderer
     render = HTMLRenderer()
-    rendered = render(AST)
+    rendered = render.render(AST)
     with open('output.html', 'w') as f:
         f.write(rendered)
