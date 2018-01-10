@@ -282,7 +282,9 @@ class TableToken(BaseBigToken):
         """表格Token的构造函数
         """
         self._lines = lines
+        self.has_header = False
         if lines[1].find('---') != -1:
+            self.has_header = True
             self.aligns = self.aligns_deal_with(lines.pop(1))
             self._kids = tuple(TableRow(line, self.aligns) for line in lines)
             self._kids[0].header = True
