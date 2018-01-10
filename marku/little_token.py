@@ -34,7 +34,7 @@ class BaseLittleToken(object):
         :match_obj: 通过正则表达式, 匹配到的
 
         """
-        self._kids = tuple( token for token in deal_with_line(match_obj.group(1)))
+        self._kids = tuple( token for token in deal_with_line(match_obj.group(1)) if token is not None)
 
     # 用这个装饰器将方法变成一个属性, 只在调用的时候构造
     @property

@@ -31,7 +31,7 @@ class BaseBigToken(object):
     """
 
     def __init__(self, lines, deal_func):
-        self._kids = tuple(token for token in deal_func(lines))
+        self._kids = tuple(token for token in deal_func(lines) if token is not None)
 
     @property
     def kids(self):
