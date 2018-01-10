@@ -320,7 +320,7 @@ class TableRow(BaseBigToken):
         self.header = header
         self._line = line[1:-2].strip().split('|')
         self._aligns = aligns
-        self._kid = tuple(
+        self._kids = tuple(
             TableCell(line, align)
             for line, align in zip(self._line, self._aligns))
 
