@@ -15,7 +15,6 @@
         - little_token_deal_with.py
         - render.py
         - run.py
-        - test.md
     - test
         - marku
             - 内容同上
