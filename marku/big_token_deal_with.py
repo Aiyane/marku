@@ -33,4 +33,4 @@ def find_token(line_buffer, token_types, init_token):
     for token_type in token_types:
         if token_type.match(line_buffer):
             return token_type(line_buffer)
-        return init_token(line_buffer)
+    return init_token(line_buffer)
