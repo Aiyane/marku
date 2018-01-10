@@ -33,6 +33,7 @@ class BaseRender(object):
             'ListItem':         self.ListItemRender,
             'TableRow':         self.TableRowRender,
             'TableCell':        self.TableCellRender,
+            'QuoteItem':        self.QuoteItemRender,
             'DocumentToken':    self.DocumentTokenRender
         }
 

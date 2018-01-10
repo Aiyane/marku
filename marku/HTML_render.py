@@ -111,6 +111,9 @@ class HTMLRenderer(BaseRender):
             [self.TableCellRender(kid, is_header) for kid in token.kids])
         return text.format(inner=inner)
 
+    def QuoteItemRender(self, token):
+        return self.render_line(token)
+
     def TableCellRender(self, token, in_header=False):
         text = '<{tag}{attr}>{inner}</tag>\n'
         tag = 'th' if in_header else 'td'
