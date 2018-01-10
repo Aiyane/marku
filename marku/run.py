@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+__author__ = 'Aiyane'
+import sys
+from big_token import DocumentToken
+from HTML_render import HTMLRenderer
+
+argv = sys.argv
+
+with open(argv[1], 'r', encoding='utf-8') as fin:
+    AST = DocumentToken(fin)
+    rendered = HTMLRendere().render(AST)
+with open(argv[2], 'w') as f:
+    write(rendered)
