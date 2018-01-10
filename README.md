@@ -28,5 +28,5 @@
 
 ## 运行
 
-暂时在 `marku`文件夹中, 运行 `python input.md output.html` 即可, 这里的 `input.md` 是你需要转换的md文件, 请放到 `marku` 文件夹中, 这里的 `output.html` 是任意html输出名字
+暂时在 `marku`文件夹中, 运行 `python run.py input.md output.html` 即可, 这里的 `input.md` 是你需要转换的md文件, 请放到 `marku` 文件夹中, 这里的 `output.html` 是任意html输出名字
 
