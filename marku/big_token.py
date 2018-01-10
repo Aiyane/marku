@@ -344,4 +344,8 @@ if __name__ == '__main__':
     with open('input.md', 'r', encoding='utf-8') as fin:
         AST = DocumentToken(fin)
     # 在这里打上断点检查抽象语法树'AST'
-    print(AST)
+    from HTML_render import HTMLRenderer
+    render = HTMLRenderer()
+    rendered = render(AST)
+    with open('output.html', 'w') as f:
+        f.write(rendered)
