@@ -11,4 +11,4 @@ with open(argv[1], 'r', encoding='utf-8') as fin:
     AST = DocumentToken(fin)
     rendered = HTMLRenderer().render(AST)
 with open(argv[2], 'w') as f:
-    write(rendered)
+    f.write(rendered)
