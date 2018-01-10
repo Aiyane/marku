@@ -9,6 +9,6 @@ argv = sys.argv
 
 with open(argv[1], 'r', encoding='utf-8') as fin:
     AST = DocumentToken(fin)
-    rendered = HTMLRendere().render(AST)
+    rendered = HTMLRenderer().render(AST)
 with open(argv[2], 'w') as f:
     write(rendered)
