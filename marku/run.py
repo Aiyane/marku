@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
 import sys
-from big_token import DocumentToken
-from HTML_render import HTMLRenderer
+from marku.big_token import DocumentToken
+from marku.HTML_render import HTMLRenderer
 
 argv = sys.argv
 

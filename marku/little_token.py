@@ -3,7 +3,7 @@
 # 处理行内的小Token
 __author__ = 'Aiyane'
 import re
-import little_token_deal_with as deal_wither
+import marku.little_token_deal_with as deal_wither
 from types import GeneratorType
 
 __all__ = [
