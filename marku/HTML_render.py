@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 __aythor__ = 'Aiyane'
-import render
+from render import BaseRender
 import html
 
 
-class HTMLRenderer(render):
+class HTMLRenderer(BaseRender):
     """这是HTML的render, 即渲染各个token成HTML格式"""
 
     def __init__(self):
@@ -32,18 +32,18 @@ class HTMLRenderer(render):
 
     def ImageTokenRender(self, token):
         text = '<img src="{}" title="{}" alt="{}">'
-        inner = render_line(token)
+        inner = self.render_line(token)
         return text.format(token.src, token.title, inner)
 
     def LinkTokenRender(self, token):
         text = '<a href="{target}">{inner}</a>'
-        target = escape_url(token.target)
+        target = html.escape_url(token.target)
         inner = self.render_line(token)
         return text.format(target=target, inner=inner)
 
     def AutoLinkTokenRender(self, token):
         text = '<a href="{target}">{inner}</a>'
-        target = escape_url(token.target)
+        target = html.escape_url(token.target)
         inner = self.render_line(token)
         return text.format(target=target, inner=inner)
 
