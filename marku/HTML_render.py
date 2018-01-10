@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 __aythor__ = 'Aiyane'
-from marku.render import BaseRender
+from render import BaseRender
 import html
 
 

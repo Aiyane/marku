@@ -1,8 +1,8 @@
 # coding: utf-8
 __author__ = "Aiyane"
 from types import GeneratorType
-import marku.big_token_deal_with as deal_wither
-import marku.little_token as little_token
+import big_token_deal_with as deal_wither
+import little_token as little_token
 
 __all__ = [
     'HeadToken', 'QuoteToken', 'BlockCodeToken', 'SeparatorToken', 'ListToken',
