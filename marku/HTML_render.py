@@ -37,13 +37,13 @@ class HTMLRenderer(BaseRender):
 
     def LinkTokenRender(self, token):
         text = '<a href="{target}">{inner}</a>'
-        target = html.escape_url(token.target)
+        target = escape_url(token.target)
         inner = self.render_line(token)
         return text.format(target=target, inner=inner)
 
     def AutoLinkTokenRender(self, token):
         text = '<a href="{target}">{inner}</a>'
-        target = html.escape_url(token.target)
+        target = escape_url(token.target)
         inner = self.render_line(token)
         return text.format(target=target, inner=inner)
 
@@ -126,3 +126,8 @@ class HTMLRenderer(BaseRender):
 
     def DocumentTokenRender(self, token):
         return self.render_line(token)
+
+
+def escape_url(raw):
+    from urllib.parse import quote
+    return quote(raw, safe='/#:')
