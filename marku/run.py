@@ -21,5 +21,5 @@ try:
 except Exception:
     print("打开文件出错, 请检查文件!")
 rendered = HTMLRenderer(AST)
-with open(output, 'w') as f:
+with open(output_file, 'w') as f:
     f.write(rendered)
