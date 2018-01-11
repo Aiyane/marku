@@ -20,6 +20,11 @@ def deal_with(lines, root=None):
 
     return deal_wither.deal_with(lines, _token_types, ParagraphToken, root)
 
+def add_token(token_cls):
+    """
+    允许外部Token的加入
+    """
+    _token_types.insert(1, token_cls)
 
 class BaseBigToken(object):
     """

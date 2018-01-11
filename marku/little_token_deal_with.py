@@ -20,7 +20,8 @@ def deal_with_line(content, token_types, init_token):
                 minIndex = match_obj.start()
                 close_token = token_type(match_obj)
                 index[1] = match_obj.end()
-        yield init_token(content[index[0]:minIndex]) if index[0] < minIndex else None
+        yield init_token(
+            content[index[0]:minIndex]) if index[0] < minIndex else None
         if not close_token:
             break
         index[0] = index[1]

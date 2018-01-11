@@ -24,21 +24,26 @@ def deal_with_line(content):
     """
     return deal_wither.deal_with_line(content, _token_types, RawText)
 
+def add_token(token_cls):
+    """
+    允许外部Token的加入
+    """
+    _token_types.insert(1, token_cls)
 
 class BaseLittleToken(object):
     """行内基础Token"""
 
     def __init__(self, match_obj):
         """构造函数
-
         :match_obj: 通过正则表达式, 匹配到的
-
         """
         self._kids = tuple( token for token in deal_with_line(match_obj.group(1)) if token is not None)
 
-    # 用这个装饰器将方法变成一个属性, 只在调用的时候构造
     @property
     def kids(self):
+        """
+        用这个装饰器将方法变成一个属性, 只在调用的时候构造
+        """
         if isinstance(self._kids, GeneratorType):
             self._kids = tuple(self._kids)
         return self._kids
