@@ -16,58 +16,58 @@ class HTMLRenderer(BaseRender):
         super().__init__(*chain(HTMLToken, extras))
 
     def StrongTokenRender(self, token):
-        text = '<strong>{}</strong>'
-        return text.format(self.render_line(token))
+        text = '<strong class="{strongClass}">{}</strong>'
+        return text.format("" ,self.render_line(token))
 
     def EmphasisTokenRender(self, token):
-        text = '<em>{}</em>'
-        return text.format(self.render_line(token))
+        text = '<em class="{emClass}">{}</em>'
+        return text.format("", self.render_line(token))
 
     def EscapeCharTokenRender(self, token):
         return self.render_line(token)
 
     def InlineCodeTokenRender(self, token):
-        text = '<code>{}</code>'
-        return text.format(self.render_line(token))
+        text = '<code class="{codeClass}">{}</code>'
+        return text.format("", self.render_line(token))
 
     def DeleTokenRender(self, token):
-        text = '<del>{}</del>'
-        return text.format(self.render_line(token))
+        text = '<del class="{delClass}">{}</del>'
+        return text.format("", self.render_line(token))
 
     def ImageTokenRender(self, token):
-        text = '<img src="{}" title="{}" alt="{}">'
+        text = '<img class="{imgClass}" src="{}" title="{}" alt="{}">'
         inner = self.render_line(token)
-        return text.format(token.src, token.title, inner)
+        return text.format("", token.src, token.title, inner)
 
     def LinkTokenRender(self, token):
-        text = '<a href="{target}">{inner}</a>'
+        text = '<a class="{aClass}" href="{target}">{inner}</a>'
         target = escape_url(token.target)
         inner = self.render_line(token)
-        return text.format(target=target, inner=inner)
+        return text.format("", target=target, inner=inner)
 
     def AutoLinkTokenRender(self, token):
-        text = '<a href="{target}">{inner}</a>'
+        text = '<a class="{aClass}" href="{target}">{inner}</a>'
         target = escape_url(token.target)
         inner = self.render_line(token)
-        return text.format(target=target, inner=inner)
+        return text.format("", target=target, inner=inner)
 
     def HeadTokenRender(self, token):
-        text = '<h{level}>{inner}</h{level}>\n'
+        text = '<h{level} class="{}">{inner}</h{level}>\n'
         inner = self.render_line(token)
-        return text.format(level=token.level, inner=inner)
+        return text.format("", level=token.level, inner=inner)
 
     def QuoteTokenRender(self, token):
-        text = '<blockquote>\n{inner}</blockquote>\n'
-        return text.format(inner=self.render_line(token))
+        text = '<blockquote class="{blockquoteClass}">\n{inner}</blockquote>\n'
+        return text.format("", inner=self.render_line(token))
 
     def BlockCodeTokenRender(self, token):
-        text = '<pre>\n<code{attr}>\n{inner}</code>\n</pre>\n'
+        text = '<pre class="{preClass}">\n<code{attr}>\n{inner}</code>\n</pre>\n'
         if token.language:
             attr = 'class="{}"'.format('lang-{}'.format(token.language))
         else:
             attr = ''
         inner = self.render_line(token)
-        return text.format(attr=attr, inner=inner)
+        return text.format("", attr=attr, inner=inner)
 
     def SeparatorTokenRender(self, token):
         return '<hr>\n'
@@ -84,7 +84,7 @@ class HTMLRenderer(BaseRender):
         return text.format(tag=tag, attr=attr, inner=inner)
 
     def TableTokenRender(self, token):
-        text = '<table>\n{inner}</table>\n'
+        text = '<table class="{tableClass}">\n{inner}</table>\n'
         if token.has_header:
             head_text = '<thead>\n{inner}</thead>\n'
             header = token.kids[0]
@@ -95,13 +95,13 @@ class HTMLRenderer(BaseRender):
         body_text = '<tbody>\n{inner}</tbody>\n'
         body_inner = self.render_line(token)
         body_rendered = body_text.format(inner=body_inner)
-        return text.format(inner=head_rendered + body_rendered)
+        return text.format("", inner=head_rendered + body_rendered)
 
     def RawTextRender(self, token):
         return html.escape(token.content)
 
     def ParagraphTokenRender(self, token):
-        return '<p>{}</p>\n'.format(self.render_line(token))
+        return '<p class="{pClass}">{}</p>\n'.format("", self.render_line(token))
 
     def ListItemRender(self, token):
         return '<li>{}</li>\n'.format(self.render_line(token))
@@ -142,7 +142,7 @@ class HTMLRenderer(BaseRender):
 
 def escape_url(raw):
     """
-    这是一个防止代码注入的函数
+    进行url编码
     """
     from urllib.parse import quote
     return quote(raw, safe='/#:')
