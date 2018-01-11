@@ -38,8 +38,8 @@ class BaseRender(object):
         }
         self._extras = extras
         for token in extras:
-            func = token.__name__ + 'Render'
-            self.render[token.__name__] = self.func
+            func = getattr(self, token.__name__ + 'Render')
+            self.render_map[token.__name__] = func
 
     def render(self, token):
         """
