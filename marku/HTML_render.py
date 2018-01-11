@@ -3,14 +3,17 @@
 __aythor__ = 'Aiyane'
 from render import BaseRender
 import html
+import HTML_token
+from itertools import chain
 
 
 class HTMLRenderer(BaseRender):
     """这是HTML的render, 即渲染各个token成HTML格式"""
 
-    def __init__(self):
+    def __init__(self, *extras):
         """构造函数 """
-        super().__init__()
+        HTMLToken = self._get_tokens(HTML_token)
+        super().__init__(*chain(HTMLToken, extras))
 
     def StrongTokenRender(self, token):
         text = '<strong>{}</strong>'
@@ -114,6 +117,12 @@ class HTMLRenderer(BaseRender):
     def QuoteItemRender(self, token):
         return '{}<br>'.format(self.render_line(token))
 
+    def HTMLBigTokenRender(self, token):
+        return token.content
+
+    def HTMLLittleTokenRender(self, token):
+        return token.content
+
     def TableCellRender(self, token, in_header=False):
         text = '<{tag}{attr}>{inner}</tag>\n'
         tag = 'th' if in_header else 'td'
@@ -132,5 +141,8 @@ class HTMLRenderer(BaseRender):
 
 
 def escape_url(raw):
+    """
+    这是一个防止代码注入的函数
+    """
     from urllib.parse import quote
     return quote(raw, safe='/#:')

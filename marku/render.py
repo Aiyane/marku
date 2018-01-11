@@ -11,7 +11,7 @@ class BaseRender(object):
     'Token名'+'Render',例如'ListTokenRender'
     """
 
-    def __init__(self):
+    def __init__(self, *extras):
         """构造函数"""
         self.render_map = {
             'StrongToken':      self.StrongTokenRender,
@@ -36,6 +36,10 @@ class BaseRender(object):
             'QuoteItem':        self.QuoteItemRender,
             'DocumentToken':    self.DocumentTokenRender
         }
+        self._extras = extras
+        for token in extras:
+            func = token.__name__ + 'Render'
+            self.render[token.__name__] = self.func
 
     def render(self, token):
         """
@@ -49,3 +53,6 @@ class BaseRender(object):
         """
         rendered = [self.render(kid) for kid in token.kids]
         return ''.join(rendered)
+    @staticmethod
+    def _get_tokens(module):
+        return [getattr(module, token_name) for token_name in module.__all__]
