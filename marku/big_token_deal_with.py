@@ -46,7 +46,8 @@ def init_deal_with(lines):
         line = line.replace('\t', ' ' * 4)
         if quoteFence:
             if line.startswith((" " * 4, ">")) == -1:
-                quoteFence = True
+                quoteFence = False
+
                 block_lines.append("\n")
             else:
                 block_lines.append(insert_blank(line, ('>'), block_lines))
