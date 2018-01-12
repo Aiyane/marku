@@ -106,7 +106,7 @@ def init_deal_with(lines, tokens):
         else:
             block_lines.append(line)
 
-    def insert_blank(content, value, block_lines):
+    def insert_blank(content, value):
         """
         判断list行和quote行符号后是否有正确的空格与内容隔开, 没有就加上
         """
