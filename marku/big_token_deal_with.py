@@ -24,7 +24,7 @@ def init_deal_with(lines, tokens):
                 yield tokens["QuoteToken"](block_lines)
                 block_lines.clear()
             else:
-                block_lines.append(insert_blank(line, ('>'), block_lines))
+                block_lines.append(insert_blank(line, ('>',), block_lines))
         if listFence:
             if line.startswith(("-", "*", "+", " " * 4)) == -1:
                 listFence = False
