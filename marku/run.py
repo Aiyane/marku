@@ -23,3 +23,4 @@ except Exception:
 rendered = HTMLRenderer(AST)
 with open(output_file, 'w') as f:
     f.write(rendered)
+print("文件已渲染完毕, 请在文件夹中检查输出文件")
