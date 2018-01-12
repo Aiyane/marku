@@ -3,6 +3,32 @@
 __author__ = "Aiyane"
 
 
+def insert_blank(line, value, block_lines):
+    """
+    判断list行和quote行符号后是否有正确的空格与内容隔开, 没有就加上
+    """
+    begin = False
+    index = 0
+    for char in line:
+        index += 1
+        if begin:
+            if char == ' ':
+                index = 0
+            break
+        if char == ' ':
+            continue
+        else:
+            if char not in value:
+                index = 0
+                line = block_lines.pop(-1) + line.strip() + "\n"
+                break
+            else:
+                begin = True
+        if index != 0:
+            line = ''.join(line[:index - 1]) + ' ' + ''.join(line[index:])
+        return line
+
+
 def init_deal_with(lines):
     """
     这是一个进行预处理的函数, 处理用户格式输入的不标准的情况, 这就是说,
@@ -23,55 +49,14 @@ def init_deal_with(lines):
                 quoteFence = True
                 block_lines.append("\n")
             else:
-                begin = False
-                index = 0
-                for char in line:
-                    index += 1
-                    if begin:
-                        if char == ' ':
-                            index = 0
-                        break
-                    if char == ' ':
-                        continue
-                    else:
-                        if char != '>':
-                            lastLine = block_lines.pop()
-                            index = 0
-                            line = ''.join(lastLine[:-1]) + line.strip() + "\n"
-                            break
-                        else:
-                            begin = True
-                if index != 0:
-                    line = ''.join(line[:index - 1]) + ' ' + ''.join(
-                        line[index:])
-                block_lines.append(line)
+                block_lines.append(insert_blank(line, ('>'), block_lines))
         if listFence:
             if line.startswith(("-", "*", "+", " " * 4)) == -1:
                 listFence = False
                 block_lines.append("\n")
             else:
-                begin = False
-                index = 0
-                for char in line:
-                    index += 1
-                    if begin:
-                        if char == ' ':
-                            index = 0
-                        break
-                    if char == ' ':
-                        continue
-                    else:
-                        if char not in ('-', '*', '+'):
-                            index = 0
-                            line = ''.join(
-                                block_lines.pop()[:-1]) + line.strip() + '\n'
-                            break
-                        else:
-                            begin = True
-                if index != 0:
-                    line = ''.join(line[:index - 1]) + ' ' + ''.join(
-                        line[index:])
-                block_lines.append(line)
+                block_lines.append(
+                    insert_blank(line, ('-', '*', '+'), block_lines))
         if tableFence:
             if line.startswith("|") == -1:
                 tableFence = False
