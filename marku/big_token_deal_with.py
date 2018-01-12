@@ -84,6 +84,9 @@ def init_deal_with(lines, tokens):
                 else:
                     yield tokens["SeparatorToken"](line)
         elif not fence and line.startswith("#"):
+            if block_lines:
+                yield tokens["ParagraphToken"](block_lines)
+                block_lines.clear()
             index = 0
             for char in line:
                 if char != "#":
@@ -95,27 +98,37 @@ def init_deal_with(lines, tokens):
                 line = line[:index - 1] + ' ' + line[index:]
             yield tokens["HeadToken"](line)
         elif not fence and line.startswith(">"):
+            if block_lines:
+                yield tokens["ParagraphToken"](block_lines)
+                block_lines.clear()
             if line[1] != ' ':
                 line = line[0] + ' ' + line[1:]
             block_lines.append("\n")
             block_lines.append(line)
             quoteFence = True
         elif not fence and line.startswith(("- ", "* ", "+ ")):
+            if block_lines:
+                yield tokens["ParagraphToken"](block_lines)
+                block_lines.clear()
             if line[1] != ' ':
                 line = line[0] + ' ' + line[1:]
             block_lines.append("\n")
             block_lines.append(line)
             listFence = True
         elif not fence and line.startswith("|"):
+            if block_lines:
+                yield tokens["ParagraphToken"](block_lines)
+                block_lines.clear()
             block_lines.append("\n")
             block_lines.append(line)
             tableFence = True
         elif not fence and line.startswith("```"):
+            if block_lines:
+                yield tokens["ParagraphToken"](block_lines)
+                block_lines.clear()
             block_lines.append("\n")
             block_lines.append(line)
             codeFence = True
-        elif not fence:
-            block_lines.append(line)
         else:
             block_lines.append(line)
 
