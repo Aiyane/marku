@@ -349,12 +349,13 @@ _token_types = [
 ]
 
 _tokens_ = {
-    "HeadToken": HeadToken,
-    "QuoteToken": QuoteToken,
-    "BlockCodeToken": BlockCodeToken,
-    "SeparatorToken": SeparatorToken,
-    "ListToken": ListToken,
-    "TableToken": TableToken
+    "HeadToken":        HeadToken,
+    "QuoteToken":       QuoteToken,
+    "BlockCodeToken":   BlockCodeToken,
+    "SeparatorToken":   SeparatorToken,
+    "ListToken":        ListToken,
+    "TableToken":       TableToken,
+    "ParagraphToken":   ParagraphToken
 }
 
 if __name__ == '__main__':
