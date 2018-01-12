@@ -24,15 +24,14 @@ def init_deal_with(lines, tokens):
                 yield tokens["QuoteToken"](block_lines)
                 block_lines.clear()
             else:
-                block_lines.append(insert_blank(line, ('>',), block_lines))
+                block_lines.append(insert_blank(line, ('>', )))
         if listFence:
             if line.startswith(("-", "*", "+", " " * 4)) == -1:
                 listFence = False
                 yield tokens["ListToken"](block_lines)
                 block_lines.clear()
             else:
-                block_lines.append(
-                    insert_blank(line, ('-', '*', '+'), block_lines))
+                block_lines.append(insert_blank(line, ('-', '*', '+')))
         if tableFence:
             if line.startswith("|") == -1:
                 tableFence = False
@@ -109,28 +108,30 @@ def init_deal_with(lines, tokens):
     def insert_blank(content, value):
         """
         判断list行和quote行符号后是否有正确的空格与内容隔开, 没有就加上
+        stage_1表明已经遇见行头的特殊标志符号
+        stage_2表明标志符号后就是一个空格, 这说明这一行是符合标准语法的
         """
-        begin = False
-        char_index = 0
-        for line_char in content:
-            char_index += 1
-            if begin:
-                if line_char == ' ':
-                    char_index = 0
-                break
-            if line_char == ' ':
+        char_list = []
+        stage_1 = False
+        stage_2 = False
+        for a_char in content:
+            if not stage_2 and stage_1:
+                # 到了阶段1, 阶段2就会马上到
+                if a_char != ' ':
+                    char_list.append(' ')
+                stage_2 = True
+            if stage_2 or a_char == ' ':
+                char_list.append(a_char)
                 continue
+            if a_char in value:
+                char_list.append(a_char)
+                stage_1 = True
             else:
-                if line_char not in value:
-                    char_ndex = 0
-                    content = block_lines.pop(-1) + line.strip() + "\n"
-                    break
-                else:
-                    begin = True
-        if char_index != 0:
-            content = ''.join(content[:char_index - 1]) + ' ' + ''.join(
-                content[char_index:])
-        return content
+                # 开始cchar_list只可能会加几个空格, 所以我不需要清除char_list里的元素
+                # 把content去掉前面的空格就好, 这样前面的空格会保留一次
+                char_list.append(block_lines.pop() + content.strip() + "\n")
+                break
+        return ''.join(char_list)
 
 
 def deal_with(lines, token_types, init_token, root=None):
