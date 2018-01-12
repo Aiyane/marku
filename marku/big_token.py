@@ -20,11 +20,13 @@ def deal_with(lines, root=None):
 
     return deal_wither.deal_with(lines, _token_types, ParagraphToken, root)
 
+
 def add_token(token_cls):
     """
     允许外部Token的加入
     """
     _token_types.insert(1, token_cls)
+
 
 class BaseBigToken(object):
     """
@@ -36,7 +38,8 @@ class BaseBigToken(object):
     """
 
     def __init__(self, lines, deal_func):
-        self._kids = tuple(token for token in deal_func(lines) if token is not None)
+        self._kids = tuple(
+            token for token in deal_func(lines) if token is not None)
 
     @property
     def kids(self):
@@ -344,6 +347,15 @@ _token_types = [
     HeadToken, QuoteToken, BlockCodeToken, SeparatorToken, ListToken,
     TableToken
 ]
+
+_tokens_ = {
+    "HeadToken": HeadToken,
+    "QuoteToken": QuoteToken,
+    "BlockCodeToken": BlockCodeToken,
+    "SeparatorToken": SeparatorToken,
+    "ListToken": ListToken,
+    "TableToken": TableToken
+}
 
 if __name__ == '__main__':
     # 将一个markdown文件放入同级目录, 命名为'input.md'

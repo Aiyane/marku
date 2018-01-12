@@ -29,7 +29,7 @@ def insert_blank(line, value, block_lines):
         return line
 
 
-def init_deal_with(lines):
+def init_deal_with(lines, tokens):
     """
     这是一个进行预处理的函数, 处理用户格式输入的不标准的情况, 这就是说,
     用户可能会少加或者多加空行或者空格, 这里的代码糟糕透顶, 之后要好好改一下
@@ -47,21 +47,23 @@ def init_deal_with(lines):
         if quoteFence:
             if line.startswith((" " * 4, ">")) == -1:
                 quoteFence = False
-
-                block_lines.append("\n")
+                yield tokens["QuoteToken"](block_lines)
+                block_lines.clear()
             else:
                 block_lines.append(insert_blank(line, ('>'), block_lines))
         if listFence:
             if line.startswith(("-", "*", "+", " " * 4)) == -1:
                 listFence = False
-                block_lines.append("\n")
+                yield tokens["ListToken"](block_lines)
+                block_lines.clear()
             else:
                 block_lines.append(
                     insert_blank(line, ('-', '*', '+'), block_lines))
         if tableFence:
             if line.startswith("|") == -1:
                 tableFence = False
-                block_lines.append("\n")
+                yield tokens["TableToken"](block_lines)
+                block_lines.clear()
             else:
                 block_lines.append(line)
 
@@ -69,17 +71,18 @@ def init_deal_with(lines):
             if line.startswith('```'):
                 codeFence = False
                 block_lines.append(line)
-                block_lines.append("\n")
+                yield tokens["BlockCodeToken"](block_lines)
+                block_lines.clear()
             else:
                 block_lines.append(line)
-        elif not fence and line.startswith("#"):
-            block_lines.append("\n")
-            block_lines.append(line)
-            block_lines.append("\n")
         elif not fence and line.find(("---", "===", "***", "* * *")):
             if line.strip() == "---" or "===" or "***" or "* * *":
-                block_lines, append(line)
-                block_lines("\n")
+                if block_lines:
+                    block_lines.append(line)
+                    yield tokens["HeadToken"](block_lines)
+                    block_lines.clear()
+                else:
+                    yield tokens["SeparatorToken"](line)
         elif not fence and line.startswith("#"):
             index = 0
             for char in line:
@@ -90,9 +93,7 @@ def init_deal_with(lines):
                 index += 1
             if index != 0:
                 line = line[:index - 1] + ' ' + line[index:]
-            block_lines.append("\n")
-            block_lines.append(line)
-            block_lines.append("\n")
+            yield tokens["HeadToken"](line)
         elif not fence and line.startswith(">"):
             if line[1] != ' ':
                 line = line[0] + ' ' + line[1:]
