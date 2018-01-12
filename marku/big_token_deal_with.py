@@ -18,19 +18,74 @@ def init_deal_with(lines):
     for line in lines:
         fence = quoteFence or listFence or tableFence or codeFence
         line = line.replace('\t', ' ' * 4)
-        if quoteFence and line.startswith((" " * 4, ">")) == -1:
-            quoteFence = True
-            block_lines.append("\n")
-        if listFence and line.startswith(("-", "*", "+", " " * 4)) == -1:
-            listFence = False
-            block_lines.append("\n")
-        if tableFence and line.startswith("|") == -1:
-            tableFence = False
-            block_lines.append("\n")
-        if codeFence and line.startswith("```"):
-            codeFence = False
-            block_lines.append(line)
-            block_lines.append("\n")
+        if quoteFence:
+            if line.startswith((" " * 4, ">")) == -1:
+                quoteFence = True
+                block_lines.append("\n")
+            else:
+                begin = False
+                index = 0
+                for char in line:
+                    index += 1
+                    if begin:
+                        if char == ' ':
+                            index = 0
+                        break
+                    if char == ' ':
+                        continue
+                    else:
+                        if char != '>':
+                            lastLine = block_lines.pop()
+                            index = 0
+                            line = ''.join(lastLine[:-1]) + line.strip() + "\n"
+                            break
+                        else:
+                            begin = True
+                if index != 0:
+                    line = ''.join(line[:index - 1]) + ' ' + ''.join(
+                        line[index:])
+                block_lines.append(line)
+        if listFence:
+            if line.startswith(("-", "*", "+", " " * 4)) == -1:
+                listFence = False
+                block_lines.append("\n")
+            else:
+                begin = False
+                index = 0
+                for char in line:
+                    index += 1
+                    if begin:
+                        if char == ' ':
+                            index = 0
+                        break
+                    if char == ' ':
+                        continue
+                    else:
+                        if char not in ('-', '*', '+'):
+                            index = 0
+                            line = ''.join(
+                                block_lines.pop()[:-1]) + line.strip() + '\n'
+                            break
+                        else:
+                            begin = True
+                if index != 0:
+                    line = ''.join(line[:index - 1]) + ' ' + ''.join(
+                        line[index:])
+                block_lines.append(line)
+        if tableFence:
+            if line.startswith("|") == -1:
+                tableFence = False
+                block_lines.append("\n")
+            else:
+                block_lines.append(line)
+
+        if codeFence:
+            if line.startswith('```'):
+                codeFence = False
+                block_lines.append(line)
+                block_lines.append("\n")
+            else:
+                block_lines.append(line)
         elif not fence and line.startswith("#"):
             block_lines.append("\n")
             block_lines.append(line)
@@ -73,55 +128,6 @@ def init_deal_with(lines):
             block_lines.append(line)
             codeFence = True
         elif not fence:
-            block_lines.append(line)
-        elif quoteFence:
-            begin = False
-            index = 0
-            for char in line:
-                index += 1
-                if begin:
-                    if char == ' ':
-                        index = 0
-                    break
-                if char == ' ':
-                    continue
-                else:
-                    if char != '>':
-                        lastLine = block_lines.pop()
-                        index = 0
-                        line = ''.join(lastLine[:-1]) + line.strip() + "\n"
-                        break
-                    else:
-                        begin = True
-            if index != 0:
-                line = ''.join(line[:index - 1]) + ' ' + ''.join(line[index:])
-            block_lines.append(line)
-        elif listFence:
-            begin = False
-            index = 0
-            for char in line:
-                index += 1
-                if begin:
-                    if char == ' ':
-                        index = 0
-                    break
-                if char == ' ':
-                    continue
-                else:
-                    if char not in ('-', '*', '+'):
-                        index = 0
-                        line = ''.join(
-                            block_lines.pop()[:-1]) + line.strip() + '\n'
-                        break
-                    else:
-                        begin = True
-            if index != 0:
-                line = ''.join(line[:index - 1]) + ' ' + ''.join(line[index:])
-            block_lines.append(line)
-        elif tableFence:
-            if line.startswith("|"):
-                block_lines.append(line)
-        elif codeFence:
             block_lines.append(line)
         else:
             block_lines.append(line)
