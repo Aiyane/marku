@@ -3,32 +3,6 @@
 __author__ = "Aiyane"
 
 
-def insert_blank(line, value, block_lines):
-    """
-    判断list行和quote行符号后是否有正确的空格与内容隔开, 没有就加上
-    """
-    begin = False
-    index = 0
-    for char in line:
-        index += 1
-        if begin:
-            if char == ' ':
-                index = 0
-            break
-        if char == ' ':
-            continue
-        else:
-            if char not in value:
-                index = 0
-                line = block_lines.pop(-1) + line.strip() + "\n"
-                break
-            else:
-                begin = True
-        if index != 0:
-            line = ''.join(line[:index - 1]) + ' ' + ''.join(line[index:])
-        return line
-
-
 def init_deal_with(lines, tokens):
     """
     这是一个进行预处理的函数, 处理用户格式输入的不标准的情况, 这就是说,
@@ -131,6 +105,32 @@ def init_deal_with(lines, tokens):
             codeFence = True
         else:
             block_lines.append(line)
+
+    def insert_blank(content, value, block_lines):
+        """
+        判断list行和quote行符号后是否有正确的空格与内容隔开, 没有就加上
+        """
+        begin = False
+        char_index = 0
+        for line_char in content:
+            char_index += 1
+            if begin:
+                if line_char == ' ':
+                    char_index = 0
+                break
+            if line_char == ' ':
+                continue
+            else:
+                if line_char not in value:
+                    char_ndex = 0
+                    content = block_lines.pop(-1) + line.strip() + "\n"
+                    break
+                else:
+                    begin = True
+        if char_index != 0:
+            content = ''.join(content[:char_index - 1]) + ' ' + ''.join(
+                content[char_index:])
+        return content
 
 
 def deal_with(lines, token_types, init_token, root=None):
