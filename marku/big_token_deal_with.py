@@ -10,45 +10,45 @@ def init_deal_with(lines, tokens):
     现在先快速写出功能
     """
     block_lines = []
-    buffer = []
-    quoteFence = False
-    listFence = False
-    tableFence = False
-    codeFence = False
+    Quote_Fence = False
+    List_Fence = False
+    Table_Fence = False
+    Code_Fence = False
     for line in lines:
-        fence = quoteFence or listFence or tableFence or codeFence
         line = line.replace('\t', ' ' * 4)
-        if quoteFence:
+        if Quote_Fence:
             if line.startswith((" " * 4, ">")) == -1:
-                quoteFence = False
+                Quote_Fence = False
                 yield tokens["QuoteToken"](block_lines)
                 block_lines.clear()
+                block_lines.append(line)
             else:
                 block_lines.append(insert_blank(line, ('>', )))
-        if listFence:
+        elif List_Fence:
             if line.startswith(("-", "*", "+", " " * 4)) == -1:
-                listFence = False
+                List_Fence = False
                 yield tokens["ListToken"](block_lines)
                 block_lines.clear()
+                block_lines.append(line)
             else:
                 block_lines.append(insert_blank(line, ('-', '*', '+')))
-        if tableFence:
+        elif Table_Fence:
             if line.startswith("|") == -1:
-                tableFence = False
+                Table_Fence = False
                 yield tokens["TableToken"](block_lines)
                 block_lines.clear()
-            else:
-                block_lines.append(line)
+            block_lines.append(line)
 
-        if codeFence:
+        elif Code_Fence:
             if line.startswith('```'):
-                codeFence = False
+                Code_Fence = False
                 block_lines.append(line)
                 yield tokens["BlockCodeToken"](block_lines)
                 block_lines.clear()
             else:
                 block_lines.append(line)
-        elif not fence and line.find(("---", "===", "***", "* * *")):
+
+        elif line.find(("---", "===", "***", "* * *")):
             if line.strip() == "---" or "===" or "***" or "* * *":
                 if block_lines:
                     block_lines.append(line)
@@ -56,7 +56,7 @@ def init_deal_with(lines, tokens):
                     block_lines.clear()
                 else:
                     yield tokens["SeparatorToken"](line)
-        elif not fence and line.startswith("#"):
+        elif line.startswith("#"):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
@@ -68,40 +68,40 @@ def init_deal_with(lines, tokens):
                     break
                 index += 1
             if index != 0:
-                line = line[:index - 1] + ' ' + line[index:]
+                line = ''.join(line[:index - 1]) + ' ' + ''.join(line[index:])
             yield tokens["HeadToken"](line)
-        elif not fence and line.startswith(">"):
+        elif line.startswith(">"):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
             if line[1] != ' ':
-                line = line[0] + ' ' + line[1:]
-            block_lines.append("\n")
+                line = line[0] + ' ' + ''.join(line[1:])
             block_lines.append(line)
-            quoteFence = True
-        elif not fence and line.startswith(("- ", "* ", "+ ")):
+            Quote_Fence = True
+        elif line.startswith(("- ", "* ", "+ ")):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
             if line[1] != ' ':
-                line = line[0] + ' ' + line[1:]
-            block_lines.append("\n")
+                line = line[0] + ' ' + ''.join(line[1:])
             block_lines.append(line)
-            listFence = True
-        elif not fence and line.startswith("|"):
+            List_Fence = True
+        elif line.startswith("|"):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
-            block_lines.append("\n")
             block_lines.append(line)
-            tableFence = True
-        elif not fence and line.startswith("```"):
+            Table_Fence = True
+        elif line.startswith("```"):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
-            block_lines.append("\n")
             block_lines.append(line)
-            codeFence = True
+            Code_Fence = True
+        elif not line.strip():
+            if block_lines:
+                yield tokens["ParagraphToken"](block_lines)
+                block_lines.clear()
         else:
             block_lines.append(line)
 
