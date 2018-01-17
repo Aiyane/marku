@@ -70,34 +70,26 @@ def init_deal_with(lines, tokens):
             if index != 0:
                 line = ''.join(line[:index - 1]) + ' ' + ''.join(line[index:])
             yield tokens["HeadToken"](line)
-        elif line.startswith(">"):
+        elif line.startswith(("- ", "* ", "+ ", ">")):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
             if line[1] != ' ':
                 line = line[0] + ' ' + ''.join(line[1:])
             block_lines.append(line)
-            Quote_Fence = True
-        elif line.startswith(("- ", "* ", "+ ")):
-            if block_lines:
-                yield tokens["ParagraphToken"](block_lines)
-                block_lines.clear()
-            if line[1] != ' ':
-                line = line[0] + ' ' + ''.join(line[1:])
-            block_lines.append(line)
-            List_Fence = True
-        elif line.startswith("|"):
-            if block_lines:
-                yield tokens["ParagraphToken"](block_lines)
-                block_lines.clear()
-            block_lines.append(line)
-            Table_Fence = True
+            if line.startswith(">"):
+                Quote_Fence = True
+            else:
+                List_Fence = True
         elif line.startswith("```"):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
             block_lines.append(line)
-            Code_Fence = True
+            if line.startswith("|"):
+                Table_Fence = True
+            else:
+                Code_Fence = True
         elif not line.strip():
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
