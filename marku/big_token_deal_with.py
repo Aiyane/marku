@@ -81,7 +81,7 @@ def init_deal_with(lines, tokens):
                 Quote_Fence = True
             else:
                 List_Fence = True
-        elif line.startswith("```"):
+        elif line.startswith("```") or line.startswith("|"):
             if block_lines:
                 yield tokens["ParagraphToken"](block_lines)
                 block_lines.clear()
