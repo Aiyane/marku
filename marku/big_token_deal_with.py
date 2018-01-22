@@ -119,7 +119,7 @@ def init_deal_with(lines, tokens):
                 char_list.append(a_char)
                 stage_1 = True
             else:
-                # 开始cchar_list只可能会加几个空格, 所以我不需要清除char_list里的元素
+                # 开始char_list只可能会加几个空格, 所以我不需要清除char_list里的元素
                 # 把content去掉前面的空格就好, 这样前面的空格会保留一次
                 char_list.append(block_lines.pop() + content.strip() + "\n")
                 break
