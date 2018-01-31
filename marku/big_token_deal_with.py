@@ -6,8 +6,14 @@ __author__ = "Aiyane"
 def init_deal_with(lines, tokens):
     """
     这是一个进行预处理的函数, 处理用户格式输入的不标准的情况, 这就是说,
-    用户可能会少加或者多加空行或者空格, 这里的代码糟糕透顶, 之后要好好改一下
+    用户可能会少加或者多加空行或者空格, 之后要好好改一下
     现在先快速写出功能
+    参数：
+        :block_lines: 代码快
+        :Quote_Fence: 引用代码的栅格
+        :List_Fence: 列表代码的栅格
+        :Table_Fence: 表格的栅格
+        :Code_Fence: 代码快的栅格
     """
     block_lines = []
     Quote_Fence = False
@@ -32,13 +38,14 @@ def init_deal_with(lines, tokens):
                 stage_2 = True
             if stage_2 or a_char == ' ':
                 char_list.append(a_char)
-                continue
-            if a_char in value:
+            elif a_char in value:
+                # 判断行头
                 char_list.append(a_char)
                 stage_1 = True
             else:
                 # 开始char_list只可能会加几个空格, 所以我不需要清除char_list里的元素
                 # 把content去掉前面的空格就好, 这样前面的空格会保留一次
+                # block_lines.pop()会把最后一行抛出来， 拼在这一行
                 char_list.append(block_lines.pop() + content.strip() + "\n")
                 break
         return ''.join(char_list)

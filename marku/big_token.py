@@ -348,6 +348,7 @@ _token_types = [
     TableToken
 ]
 
+# 这将会是传到init_deal_with的参数
 _tokens_ = {
     "HeadToken":        HeadToken,
     "QuoteToken":       QuoteToken,
