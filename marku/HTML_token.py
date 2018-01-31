@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
 import re
@@ -22,9 +22,9 @@ class HTMLBigToken(big_token.BaseBigToken):
         close_tag_start = lines[-1].find('</')
         if (not lines[0].strip().startswith('<') or open_tag_end == -1
                 or close_tag_start == -1):
-            return Falses
+            return False
         open_tag = lines[0][1:open_tag_end].split(' ')[0]
-        close_tag = lines[-1][cloase_tag_start + 2:-2]
+        close_tag = lines[-1][close_tag_start + 2:-2]
         if open_tag != close_tag:
             return False
         return True

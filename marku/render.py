@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
 
@@ -53,6 +53,7 @@ class BaseRender(object):
         """
         rendered = [self.render(kid) for kid in token.kids]
         return ''.join(rendered)
+
     @staticmethod
     def _get_tokens(module):
         return [getattr(module, token_name) for token_name in module.__all__]
