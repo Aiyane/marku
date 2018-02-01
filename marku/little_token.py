@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # 处理行内的小Token
 __author__ = 'Aiyane'
@@ -24,11 +24,13 @@ def deal_with_line(content):
     """
     return deal_wither.deal_with_line(content, _token_types, RawText)
 
+
 def add_token(token_cls):
     """
     允许外部Token的加入
     """
     _token_types.insert(1, token_cls)
+
 
 class BaseLittleToken(object):
     """行内基础Token"""
@@ -37,7 +39,9 @@ class BaseLittleToken(object):
         """构造函数
         :match_obj: 通过正则表达式, 匹配到的
         """
-        self._kids = tuple( token for token in deal_with_line(match_obj.group(1)) if token is not None)
+        self._kids = tuple(
+            token for token in deal_with_line(match_obj.group(1))
+            if token is not None)
 
     @property
     def kids(self):
@@ -78,10 +82,9 @@ class EmphasisToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = (
-            RawText(
-                next(group for group in match_obj.groups()
-                     if group is not None)), )
+        self._kids = (RawText(
+            next(
+                group for group in match_obj.groups() if group is not None)), )
 
 
 class StrongToken(BaseLittleToken):
@@ -93,10 +96,9 @@ class StrongToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = (
-            RawText(
-                next(group for group in match_obj.groups()
-                     if group is not None)), )
+        self._kids = (RawText(
+            next(
+                group for group in match_obj.groups() if group is not None)), )
 
 
 class InlineCodeToken(BaseLittleToken):
@@ -164,6 +166,6 @@ class AutoLinkToken(BaseLittleToken):
 
 # 这是能够构造的行内Token
 _token_types = [
-    InlineCodeToken, EscapeCharToken, EmphasisToken, StrongToken,
-    DeleToken, ImageToken, LinkToken, AutoLinkToken
+    InlineCodeToken, EscapeCharToken, EmphasisToken, StrongToken, DeleToken,
+    ImageToken, LinkToken, AutoLinkToken
 ]

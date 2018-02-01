@@ -13,7 +13,7 @@ def init_deal_with(lines, tokens):
         :Quote_Fence: 引用代码的栅格
         :List_Fence: 列表代码的栅格
         :Table_Fence: 表格的栅格
-        :Code_Fence: 代码快的栅格
+        :Code_Fence: 代码块的栅格
     """
     block_lines = []
     Quote_Fence = False
