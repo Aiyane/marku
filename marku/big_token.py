@@ -18,7 +18,7 @@ def deal_with(lines, root=None):
     #   ParagraphToken代表默认Token, 即默认认为这个块是一个段落
     #   root代表根
 
-    return deal_wither.deal_with(lines, _token_types, ParagraphToken, root)
+    return deal_wither.init_deal_with(lines, _tokens_, ParagraphToken, root)
 
 
 def add_token(token_cls):
