@@ -14,21 +14,12 @@
         - little_token.py
         - little_token_deal_with.py
         - render.py
-        - run.py
-    - test
-        - marku
-            - 内容同上
-        - test.py
-        - test1.md
-        - test2.md
+        - __init__.py
+    - test.py
     - .gitignore
     - README.md
 
-在IDE中直接运行 `test/test.py` 文件, 默认会解析 `test` 文件夹中的 `test.md` 文件, 这时你会看到 `test` 文件夹中多出一个 `output.html` 文件, 可以直接打开查看测试结果.
-
-或者你直接打开终端, 利用 `cd` 命令到 `test` 文件夹, 运行 `python test.py` 也是同样效果, 当然你也可以运行 `python test.py test2.md output.html` 这样是将 `test` 文件夹中 `test2.md` 文件转化成 `output.html`.
-
 ## 运行
 
-暂时在 `marku`文件夹中, 运行 `python run.py input.md output.html` 即可, 这里的 `input.md` 是你需要转换的md文件, 请放到 `marku` 文件夹中, 这里的 `output.html` 是任意html输出名字
+`marku`文件夹为此包, `test.py` 是一个例子.
 

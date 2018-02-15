@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
 import sys
-import big_token
-import little_token
-from HTML_render import HTMLRenderer
-from HTML_token import HTMLBigToken, HTMLLittleToken
+from marku import big_token
+from marku import little_token
+from marku import HTMLRenderer
+from marku.HTML_token import HTMLBigToken, HTMLLittleToken
 
 argv = sys.argv
 
