@@ -1,8 +1,8 @@
 # coding: utf-8
 __author__ = "Aiyane"
 from types import GeneratorType
-import big_token_deal_with as deal_wither
-import little_token as little_token
+from marku import big_token_deal_with as deal_wither
+from marku import little_token as little_token
 
 __all__ = [
     'HeadToken', 'QuoteToken', 'BlockCodeToken', 'SeparatorToken', 'ListToken',
@@ -56,6 +56,10 @@ class DocumentToken(BaseBigToken):
 
     def __init__(self, lines):
         self._kids = tuple(deal_with(lines, root=self))
+
+    @property
+    def __name__(self):
+        return self.__class__.__name__
 
 
 class HeadToken(BaseBigToken):

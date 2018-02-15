@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
 import re
-import big_token
-import little_token
+from marku import big_token
+from marku import little_token
 
 __all__ = ['HTMLBigToken', 'HTMLLittleToken']
 

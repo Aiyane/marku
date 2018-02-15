@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __aythor__ = 'Aiyane'
-from render import BaseRender
+from marku.render import BaseRender
 import html
-import HTML_token
+from marku import HTML_token
 from itertools import chain
-from HTML_class import tokenClass
+from marku.HTML_class import tokenClass
 
 
 class HTMLRenderer(BaseRender):

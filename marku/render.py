@@ -10,7 +10,6 @@ class BaseRender(object):
     然后你处理抽象语法树中的Token需要自定义处理函数, 函数的名字必须是
     'Token名'+'Render',例如'ListTokenRender'
     """
-
     def __init__(self, *extras):
         """构造函数"""
         self.render_map = {
