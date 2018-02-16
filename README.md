@@ -17,6 +17,7 @@
         - little_token_deal_with.py
         - render.py
         - run.py
+        - style.css
         - `__init__.py`
     - test.py
     - test2.py
@@ -32,7 +33,7 @@
 
 ## 说明
 
-该包支持自定义渲染css文件, 在head中添加其他代码(other), style.css是一个css文件例子, test.md是测试的markdown文件, 以下是test.py里的使用例子, 在例子中添加了代码高亮的`highlight.js`链接
+该包支持自定义渲染css文件, 在head中添加其他代码(other), style.css是默认css样式, test.md是测试的markdown文件, 以下是test.py里的使用例子, 默认使用`highlight.js`高亮代码
 
 ```py
 #!/usr/bin/env python3
@@ -46,17 +47,12 @@ import os
 import webbrowser
 
 loc = os.getcwd()
-other = """<link rel="stylesheet"
-    href="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
-<script src="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
-<script >hljs.initHighlightingOnLoad();</script>
-"""
 
-md = Marku(loc + "/test2.md", loc + '/style.css', other)
+md = Marku(loc + "/test2.md")
 md.render(loc + "/out.html")
 webbrowser.open(loc + "/out.html")
 ```
 
-运行完可以看到文件夹中出现`out.html`, 即为目标文件
+运行完可以看到文件夹中出现`out.html`, 即为目标文件, 其中render接受三个参数, 第二个为自定义css渲染文件路径, 第三个为其他需要添加在head标签的代码字符串
 
 该包的特点是能够极大的容忍用户写的markdown文件的语法错误, test2.md是一个充满语法错误的markdown文件, 但是其渲染出来的结果与test.md基本一致.

@@ -27,15 +27,7 @@ except IOError:
     print("打开文件出错, 请检查文件!")
     sys.exit()
 
-with open('style.css', 'r', encoding="utf8") as f:
-    css = f.read()
-
-other = """<link rel="stylesheet"
-    href="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
-<script src="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
-<script >hljs.initHighlightingOnLoad();</script>
-"""
-rendered = HTMLRenderer().rendered(AST, css, other)
+rendered = HTMLRenderer().rendered(AST)
 with open(output_file, 'w') as f:
     f.write(rendered)
 print("文件已渲染完毕, 请在文件夹中检查输出文件")

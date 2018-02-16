@@ -48,8 +48,16 @@ class BaseRender(object):
         return self.render_map[token.__class__.__name__](token)
 
     def rendered(self, token, css='', other=''):
+        import os
+        if css == '':
+            with open(os.path.dirname(os.path.realpath(__file__)) + '/style.css', 'r', encoding='utf8') as f:
+                css = f.read()
         content = """<!doctype html>
         <html><head><meta charset="utf-8">
+        <link rel="stylesheet"
+            href="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
+        <script src="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+        <script >hljs.initHighlightingOnLoad();</script>
         {other}
         <style>{css}</style>
         </head><body id="container" class="export export-html">
