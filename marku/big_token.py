@@ -18,14 +18,14 @@ def deal_with(lines, root=None):
     #   ParagraphToken代表默认Token, 即默认认为这个块是一个段落
     #   root代表根
 
-    return deal_wither.init_deal_with(lines, _tokens_, ParagraphToken, root)
+    return deal_wither.init_deal_with(lines, _tokens_, ParagraphToken, root, _extra_tokens)
 
 
 def add_token(token_cls):
     """
     允许外部Token的加入
     """
-    _token_types.insert(1, token_cls)
+    _extra_tokens.append(token_cls)
 
 
 class BaseBigToken(object):
@@ -79,16 +79,6 @@ class HeadToken(BaseBigToken):
 
         super().__init__(content, little_token.deal_with_line)
 
-    @staticmethod
-    def match(lines):
-        """匹配函数
-        """
-        if (len(lines) == 1 and lines[0].startswith('#')
-                and lines[0].find('# ') != -1):
-            return True
-        return len(lines) > 1 and (lines[-1].startswith('---')
-                                   or lines[-1].startswith('==='))
-
 
 class QuoteToken(BaseBigToken):
     """引用Token, 处理的是例如('> ')这样的引用
@@ -125,10 +115,6 @@ class QuoteToken(BaseBigToken):
         if contents:
             yield QuoteToken(contents)
             contents.clear()
-
-    @staticmethod
-    def match(lines):
-        return lines[0].startswith('> ')
 
 
 class QuoteItem(BaseBigToken):
@@ -173,15 +159,6 @@ class BlockCodeToken(BaseBigToken):
             self.language = ''
         self._kids = (little_token.RawText(content), )
 
-    @staticmethod
-    def match(lines):
-        if lines[0].startswith('```') and lines[-1] == '```\n':
-            return True
-        for line in lines:
-            if not line.startswith(' ' * 4):
-                return False
-        return True
-
 
 class SeparatorToken(BaseBigToken):
     """这是分隔符Token
@@ -192,10 +169,6 @@ class SeparatorToken(BaseBigToken):
 
     def __init__(self, lines):
         self.lines = lines
-
-    @staticmethod
-    def match(lines):
-        return len(lines) == 1 and lines[0] in SeparatorToken.accept_params
 
 
 class ListToken(BaseBigToken):
@@ -255,10 +228,6 @@ class ListToken(BaseBigToken):
         return line.startswith(
             ('- ', '* ', '+ ')) or line.split(' ', 1)[0][:-1].isdigit()
 
-    @staticmethod
-    def match(lines):
-        return ListToken.has_leader(lines[0].strip())
-
 
 class ListItem(BaseBigToken):
     """这是一个一行的ListItem
@@ -315,10 +284,6 @@ class TableToken(BaseBigToken):
                 res.append(0)
         return res
 
-    @staticmethod
-    def match(lines):
-        return lines[0][0] == '|' and lines[0][-2] == '|' and lines[-1][0] == '|' and lines[-1][-2] == '|'
-
 
 class TableRow(BaseBigToken):
     """Table一行的Token"""
@@ -343,11 +308,6 @@ class TableCell(BaseBigToken):
         super().__init__(content, little_token.deal_with_line)
 
 
-_token_types = [
-    HeadToken, QuoteToken, BlockCodeToken, SeparatorToken, ListToken,
-    TableToken
-]
-
 # 这将会是传到init_deal_with的参数
 _tokens_ = {
     "HeadToken":        HeadToken,
@@ -358,14 +318,4 @@ _tokens_ = {
     "TableToken":       TableToken,
     "ParagraphToken":   ParagraphToken
 }
-
-# if __name__ == '__main__':
-#     # 将一个markdown文件放入同级目录, 命名为'input.md'
-#     with open('input.md', 'r', encoding='utf-8') as fin:
-#         AST = DocumentToken(fin)
-#     # 在这里打上断点检查抽象语法树'AST'
-#     from HTML_render import HTMLRenderer
-#     render = HTMLRenderer()
-#     rendered = render.render(AST)
-#     with open('output.html', 'w') as f:
-#         f.write(rendered)
+_extra_tokens = []

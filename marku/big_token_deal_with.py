@@ -3,7 +3,7 @@
 __author__ = "Aiyane"
 
 
-def init_deal_with(lines, tokens, init_token, root=None):
+def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
     """
     这是一个进行预处理的函数, 处理用户格式输入的不标准的情况
     用户可能会少加或者多加空行或者空格
@@ -49,6 +49,14 @@ def init_deal_with(lines, tokens, init_token, root=None):
                 char_list.append(block_lines.pop() + content.strip() + "\n")
                 break
         return ''.join(char_list)
+
+    # 这里为了处理额外插入的token
+    # 额外插入的token必须有一个类方法match, 用来判断该语句块是否符合这个token
+    def deal_extra_token(lines):
+        for token in extra_tokens:
+            if token.match(lines):
+                return token(lines)
+        return None
 
     # 这里为了加上换行将最后一块语句输出
     def _yield_line(lines):
@@ -115,7 +123,11 @@ def init_deal_with(lines, tokens, init_token, root=None):
         elif line.startswith("#"):
             if block_lines:
                 # 这里说明是前面段落没有空行
-                yield init_token(block_lines)
+                token = deal_extra_token(block_lines)
+                if token:
+                    yield token
+                else:
+                    yield init_token(block_lines)
                 block_lines.clear()
             # index是在那个位置开始就没有'#', 而且不是' '
             # 说明用户没有遵守语法标准
@@ -133,7 +145,11 @@ def init_deal_with(lines, tokens, init_token, root=None):
         elif line.startswith(("-", "*", "+", ">")):
             if block_lines:
                 # 这里说明前面段落没有空行
-                yield init_token(block_lines)
+                token = deal_extra_token(block_lines)
+                if token:
+                    yield token
+                else:
+                    yield init_token(block_lines)
                 block_lines.clear()
             if line[1] != ' ':
                 line = line[0] + ' ' + ''.join(line[1:])
@@ -145,7 +161,11 @@ def init_deal_with(lines, tokens, init_token, root=None):
         elif line.startswith("```") or line.startswith("|"):
             if block_lines:
                 # 这里说明前面段落没有空行
-                yield init_token(block_lines)
+                token = deal_extra_token(block_lines)
+                if token:
+                    yield token
+                else:
+                    yield init_token(block_lines)
                 block_lines.clear()
             block_lines.append(line)
             if line.startswith("|"):
@@ -153,9 +173,15 @@ def init_deal_with(lines, tokens, init_token, root=None):
             else:
                 Code_Fence = True
         elif not line.strip():
-            # 这里遇见了空行
+            # 为了处理额外插入的token
+            # 如果没有匹配上, 就返回默认token
             if block_lines:
-                yield tokens["ParagraphToken"](block_lines)
+                token = deal_extra_token(block_lines)
+                if token:
+                    yield token
+                else:
+                    yield init_token(block_lines)
                 block_lines.clear()
         else:
             block_lines.append(line)
+
