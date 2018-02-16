@@ -69,7 +69,7 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
         if Quote_Fence or List_Fence:
             # 处理列表块或引用块
             # 这里的代码处理没有空行的能再识别接下来的语句块
-            if not line.startswith(("-", "*", "+", ">", " " * 4)):
+            if not line.startswith(("-", "*", "+", ">", " " * 4)) and not line.split('.')[0].isdigit():
                 if Quote_Fence:
                     yield tokens["QuoteToken"](block_lines)
                 else:
@@ -80,6 +80,11 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
                     # 如果是空行, 例如'\n'就直接读取下一行
                     continue
                 # 如果不是空行, 会直接继续if语句判断这一行的标志
+            elif line.strip().split('.')[0].isdigit():
+                if not line.split('.')[1].startswith(' '):
+                    line = line.split('.')[0] + '. ' + line.split('.')[1]
+                block_lines.append(line)
+                continue
             else:
                 block_lines.append(insert_blank(line, ('-', '*', '+', '>')))
                 continue
@@ -172,6 +177,19 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
                 Table_Fence = True
             else:
                 Code_Fence = True
+        elif line.split('.')[0].isdigit():
+            if block_lines:
+                # 这里说明前面段落没有空行
+                token = deal_extra_token(block_lines)
+                if token:
+                    yield token
+                else:
+                    yield init_token(block_lines)
+                block_lines.clear()
+            if not line.split('.')[1].startswith(' '):
+                line = line.split('.')[0] + '. ' + line.split('.')[1]
+            block_lines.append(line)
+            List_Fence = True
         elif not line.strip():
             # 为了处理额外插入的token
             # 如果没有匹配上, 就返回默认token
@@ -184,4 +202,3 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
                 block_lines.clear()
         else:
             block_lines.append(line)
-
