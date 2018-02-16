@@ -1,5 +1,7 @@
 # Marku
 
+这里有一个渲染本文件夹中test2.md的[例子](https://qq2310091880.github.io/out "例子")
+
 这是一个`Markdown`解释器, 一个自己练手的小项目, 打算解析出`Markdown`文件的抽象语法树, 再利用抽象语法树解析成`HTML`格式
 
 ## 目录
@@ -56,3 +58,4 @@ webbrowser.open(loc + "/out.html")
 运行完可以看到文件夹中出现`out.html`, 即为目标文件, 其中render接受三个参数, 第二个为自定义css渲染文件路径, 第三个为其他需要添加在head标签的代码字符串
 
 该包的特点是能够极大的容忍用户写的markdown文件的语法错误, test2.md是一个充满语法错误的markdown文件, 但是其渲染出来的结果与test.md基本一致.
+
