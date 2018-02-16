@@ -32,7 +32,7 @@
 
 ## 说明
 
-该包支持自定义渲染css文件, 代码高亮采用`highlight.js`, style.css是一个css文件例子, test.md是测试的markdown文件, 以下是test.py里的使用例子
+该包支持自定义渲染css文件, 在head中添加其他代码(other), style.css是一个css文件例子, test.md是测试的markdown文件, 以下是test.py里的使用例子, 在例子中添加了代码高亮的`highlight.js`链接
 
 ```py
 #!/usr/bin/env python3
@@ -43,11 +43,18 @@ Marku的简单使用
 
 from marku import Marku
 import os
+import webbrowser
 
 loc = os.getcwd()
+other = """<link rel="stylesheet"
+    href="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
+<script src="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+<script >hljs.initHighlightingOnLoad();</script>
+"""
 
-md = Marku(loc + "/test2.md", loc + '/style.css')
+md = Marku(loc + "/test2.md", loc + '/style.css', other)
 md.render(loc + "/out.html")
+webbrowser.open(loc + "/out.html")
 ```
 
 运行完可以看到文件夹中出现`out.html`, 即为目标文件

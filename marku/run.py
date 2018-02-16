@@ -8,13 +8,14 @@ from marku.HTML_token import HTMLBigToken, HTMLLittleToken
 
 
 class Marku(object):
-    def __init__(self, input_file, css_file=None):
+    def __init__(self, input_file, css_file=None, other=''):
         """
         input_file: 输入文件路径
         css_file: 输入css文件路径
         """
         self.input_file = input_file
         self.css_file = css_file
+        self.other = other
         self.css = ''
 
     def render(self, output_file=None):
@@ -32,7 +33,7 @@ class Marku(object):
         except IOError:
             print("打开文件出错, 请检查文件!")
 
-        rendered = HTMLRenderer().rendered(AST, self.css)
+        rendered = HTMLRenderer().rendered(AST, self.css, self.other)
         if output_file is None:
             return rendered
         try:

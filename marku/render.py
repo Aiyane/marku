@@ -47,16 +47,13 @@ class BaseRender(object):
         """
         return self.render_map[token.__class__.__name__](token)
 
-    def rendered(self, token, css=''):
+    def rendered(self, token, css='', other=''):
         content = """<!doctype html>
         <html><head><meta charset="utf-8">
-        <link rel="stylesheet"
-            href="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
-        <script src="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
-        <script >hljs.initHighlightingOnLoad();</script>
+        {other}
         <style>{css}</style>
         </head><body id="container" class="export export-html">
-        """.format(css=css)
+        """.format(css=css, other=other)
         content += self.render(token)
         content += """
         </body></html>
