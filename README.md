@@ -52,4 +52,4 @@ md.render(loc + "/out.html")
 
 运行完可以看到文件夹中出现`out.html`, 即为目标文件
 
-改包的特点是能够极大的容忍用户写的markdown文件的语法错误, test2.md是一个充满语法错误的markdown文件, 但是其渲染出来的结果与test.md基本一致.
+该包的特点是能够极大的容忍用户写的markdown文件的语法错误, test2.md是一个充满语法错误的markdown文件, 但是其渲染出来的结果与test.md基本一致.
