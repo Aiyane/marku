@@ -69,7 +69,8 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
         if Quote_Fence or List_Fence:
             # 处理列表块或引用块
             # 这里的代码处理没有空行的能再识别接下来的语句块
-            if not line.startswith(("-", "*", "+", ">", " " * 4)) and not line.split('.')[0].isdigit():
+            if not line.startswith(("-", "*", "+", ">", " " * 4)) and not line.split('.')[0].isdigit()\
+                    and not (line.strip().startswith('>') and Quote_Fence):
                 if Quote_Fence:
                     yield tokens["QuoteToken"](block_lines)
                 else:
@@ -80,12 +81,14 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
                     # 如果是空行, 例如'\n'就直接读取下一行
                     continue
                 # 如果不是空行, 会直接继续if语句判断这一行的标志
-            elif line.strip().split('.')[0].isdigit():
+            elif line.strip().split('.')[0].isdigit() and List_Fence:
                 if not line.split('.')[1].startswith(' '):
                     line = line.split('.')[0] + '. ' + line.split('.')[1]
                 block_lines.append(line)
                 continue
             else:
+                if line.strip().startswith('>') and Quote_Fence:
+                    line = line.strip()
                 block_lines.append(insert_blank(line, ('-', '*', '+', '>')))
                 continue
         elif Table_Fence:

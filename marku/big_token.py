@@ -93,24 +93,19 @@ class QuoteToken(BaseBigToken):
     @staticmethod
     def build_quote(lines):
         """
-        这个函数用来处理多重引用, 可以有以下逻辑
-        问: 这个引用是以'> '开头的吗?
-            是的, 这是一个普通的引用
-            不是, 这是一个嵌套的引用
-                问: 去掉四个空格这个引用是以'> '开头的吗?
-                    是的, 它是一个普通的嵌套引用
-                    不是, 他还在后面...
         """
         contents = []
         for line in lines:
-            if line.startswith('> ') and not contents:
+            if line.startswith('> ') and not contents and line[2] != '>':
                 yield QuoteItem(line)
-            elif line.startswith('> ') and contents:
+            elif line.startswith('> ') and contents and line[2] != '>':
                 yield QuoteToken(contents)
                 yield QuoteItem(line)
                 contents.clear()
-            elif line.startswith(' ' * 4):
-                line = line[4:]
+            elif line[2] == '>':
+                line = line[2:]
+                if line[1] != ' ':
+                    line = '> ' + line[1:]
                 contents.append(line)
         if contents:
             yield QuoteToken(contents)
