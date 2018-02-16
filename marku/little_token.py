@@ -122,7 +122,7 @@ class DeleToken(BaseLittleToken):
     def __init__(self, match_obj):
         """构造函数
         """
-        self._kids = tuple(RawText(match_obj.group(1)), )
+        self._kids = (RawText(match_obj.group(1)), )
 
 
 class ImageToken(BaseLittleToken):
