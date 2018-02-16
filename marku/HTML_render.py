@@ -46,11 +46,12 @@ class HTMLRenderer(BaseRender):
             token.src, token.title, inner, imgClass=tokenClass['imgClass'])
 
     def LinkTokenRender(self, token):
-        text = '<a class="{aClass}" href="{target}">{inner}</a>'
+        text = '<a class="{aClass}" href="{target}" title="{title}">{inner}</a>'
         target = escape_url(token.target)
+        title = self.RawTextRender(token.title)
         inner = self.render_line(token)
         return text.format(
-            aClass=tokenClass['aClass'], target=target, inner=inner)
+            aClass=tokenClass['aClass'], target=target, title=title, inner=inner)
 
     def AutoLinkTokenRender(self, token):
         text = '<a class="{aClass}" href="{target}">{inner}</a>'
@@ -72,7 +73,7 @@ class HTMLRenderer(BaseRender):
             inner=self.render_line(token))
 
     def BlockCodeTokenRender(self, token):
-        text = '<pre class="{preClass}">\n<code{attr}>\n{inner}</code>\n</pre>\n'
+        text = '<pre class="{preClass}">\n<code {attr}>\n{inner}</code>\n</pre>\n'
         if token.language:
             attr = 'class="{}"'.format('lang-{}'.format(token.language))
         else:
@@ -130,7 +131,7 @@ class HTMLRenderer(BaseRender):
         return text.format(inner=inner)
 
     def QuoteItemRender(self, token):
-        return '{}<br>'.format(self.render_line(token))
+        return '<p>{}</p>'.format(self.render_line(token))
 
     def HTMLBigTokenRender(self, token):
         return token.content

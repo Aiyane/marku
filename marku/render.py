@@ -10,6 +10,7 @@ class BaseRender(object):
     然后你处理抽象语法树中的Token需要自定义处理函数, 函数的名字必须是
     'Token名'+'Render',例如'ListTokenRender'
     """
+
     def __init__(self, *extras):
         """构造函数"""
         self.render_map = {
@@ -46,11 +47,28 @@ class BaseRender(object):
         """
         return self.render_map[token.__class__.__name__](token)
 
+    def rendered(self, token, css=''):
+        content = """<!doctype html>
+        <html><head><meta charset="utf-8">
+        <link rel="stylesheet"
+            href="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
+        <script src="http://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+        <script >hljs.initHighlightingOnLoad();</script>
+        <style>{css}</style>
+        </head><body id="container" class="export export-html">
+        """.format(css=css)
+        content += self.render(token)
+        content += """
+        </body></html>
+        """
+        return content
+
     def render_line(self, token):
         """
         递归调用子Token
         """
-        rendered = [self.render(kid) for kid in token.kids]
+        rendered = ['<span>' +
+                    self.render(kid) + '</span>' for kid in token.kids]
         return ''.join(rendered)
 
     @staticmethod

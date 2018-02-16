@@ -142,13 +142,14 @@ class LinkToken(BaseLittleToken):
     例如('[name](target)')
     """
     pattern = re.compile(
-        r"\[((?:!\[(?:.+?)\][\[\(](?:.+?)[\)\]])|(?:.+?))\] *\((.+?)\)")
+        r'\[((?:!\[(?:.+?)\][\[\(](?:.+?)[\)\]])|(?:.+?))\] *\((.+?)(?: *"(.+?)")?\)')
 
     def __init__(self, match_obj):
         """构造函数
         """
         self._kids = (RawText(match_obj.group(1)), )
         self.target = match_obj.group(2)
+        self.title = RawText(match_obj.group(3))
 
 
 class AutoLinkToken(BaseLittleToken):

@@ -22,7 +22,11 @@ try:
 except IOError:
     print("打开文件出错, 请检查文件!")
     sys.exit()
-rendered = HTMLRenderer().render(AST)
+
+with open('style.css', 'r', encoding="utf8") as f:
+    css = f.read()
+
+rendered = HTMLRenderer().rendered(AST, css)
 with open(output_file, 'w') as f:
     f.write(rendered)
 print("文件已渲染完毕, 请在文件夹中检查输出文件")
