@@ -17,7 +17,7 @@
         - little_token_deal_with.py
         - render.py
         - run.py
-        - __init__.py
+        - `__init__.py`
     - test.py
     - test2.py
     - style.css
