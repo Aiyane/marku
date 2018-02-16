@@ -16,7 +16,7 @@ argv = sys.argv
 try:
     input_file, output_file = argv[1], argv[2]
 except Exception:
-    print("请输入正确命令, python3 test.py {输入文件名} {输出文件名}")
+    print("请输入正确命令: 'python3 test2.py {输入文件路径} {输出文件路径}'")
     sys.exit()
 try:
     with open(input_file, 'r', encoding="utf8") as fin:
