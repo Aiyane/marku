@@ -21,5 +21,6 @@
 
 ## 运行
 
-`marku`文件夹为此包, `test.py` 是一个例子.
+`marku`文件夹为此包, `test.py` 是一个例子, 运行`python3 test.py {输入文件名} {输出文件名}`, 输入文件名为markdown文件, 输出为html文件
+
 

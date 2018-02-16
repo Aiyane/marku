@@ -57,10 +57,6 @@ class DocumentToken(BaseBigToken):
     def __init__(self, lines):
         self._kids = tuple(deal_with(lines, root=self))
 
-    @property
-    def __name__(self):
-        return self.__class__.__name__
-
 
 class HeadToken(BaseBigToken):
     """这是标题Token, 处理的是例如('# 标题', '## 标题2', '### 标题3 ###')
