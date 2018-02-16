@@ -50,7 +50,13 @@ def init_deal_with(lines, tokens, init_token, root=None):
                 break
         return ''.join(char_list)
 
-    for line in lines:
+    # 这里为了加上换行将最后一块语句输出
+    def _yield_line(lines):
+        for line in lines:
+            yield line
+        yield '\n'
+
+    for line in _yield_line(lines):
         line = line.replace('\t', ' ' * 4)
         if Quote_Fence or List_Fence:
             # 处理列表块或引用块

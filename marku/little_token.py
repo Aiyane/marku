@@ -129,7 +129,7 @@ class ImageToken(BaseLittleToken):
     """这是图片的Token
     例如( '![alt](src "title")' )
     """
-    pattern = re.compile(r'\!\[(.+?)\] *\((.+?)(?: *"(.+?)")?\)')
+    pattern = re.compile(r'\!\[(.*?)\] *\((.+?)(?: *"(.+?)")?\)')
 
     def __init__(self, match_obj):
         self._kids = (RawText(match_obj.group(1)), )

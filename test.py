@@ -19,7 +19,7 @@ try:
         big_token.add_token(HTMLBigToken)
         little_token.add_token(HTMLLittleToken)
         AST = big_token.DocumentToken(fin)
-except Exception:
+except IOError:
     print("打开文件出错, 请检查文件!")
     sys.exit()
 rendered = HTMLRenderer().render(AST)
