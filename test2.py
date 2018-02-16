@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
 """
@@ -9,6 +9,7 @@ from marku import big_token
 from marku import little_token
 from marku import HTMLRenderer
 from marku.HTML_token import HTMLBigToken, HTMLLittleToken
+import webbrowser
 
 argv = sys.argv
 
@@ -33,3 +34,4 @@ rendered = HTMLRenderer().rendered(AST, css)
 with open(output_file, 'w') as f:
     f.write(rendered)
 print("文件已渲染完毕, 请在文件夹中检查输出文件")
+webbrowser.open(output_file)
