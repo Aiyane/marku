@@ -3,15 +3,31 @@
 __author__ = 'Aiyane'
 
 tokenClass = {
-    "strongClass":      "strongClass",
-    "emClass":          "emClass",
-    "codeClass":        "codeClass",
-    "delClass":         "delClass",
-    "imgClass":         "imgClass",
-    "aClass":           "aClass",
-    "hClass":           "hClass",
-    "blockquoteClass":  "blockquoteClass",
-    "preClass":         "preClass",
-    "tableClass":       "tableClass",
-    "pClass":           "pClass"
+    "strongClass":      "",
+    "emClass":          "",
+    "codeClass":        "",
+    "delClass":         "",
+    "imgClass":         "",
+    "aClass":           "",
+    "hClass":           "",
+    "blockquoteClass":  "",
+    "preClass":         "",
+    "tableClass":       "",
+    "pClass":           ""
 }
+
+
+def addClass(cls_dict=None):
+    if cls_dict is not None and not isinstance(cls_dict, dict):
+        raise TypeError('%r 必须是字典类型', cls_dict)
+    elif cls_dict is None:
+        return tokenClass
+
+    for k, v in cls_dict.items():
+        if k in tokenClass:
+            tokenClass[k] = v
+    return tokenClass
+
+
+def getClass(name):
+    return tokenClass[name]

@@ -56,3 +56,11 @@ if __name__ == "__main__":
 ![](https://www.baidu.com/img/baidu_jgylogo3.gif)
 ###其他测试
 这里是**强调**, 这里是*斜体*, 这里是`行内代码`, 这里是~~删除符~~, 这里有逃逸字符 \*,\* 测试完成.
+
+这里是一个html标签<a href="https://github.com/qq2310091880/marku">链接</a>
+
+这里是跨行html标签
+
+<p class="my_p">
+    这里一段p标签内容
+</p>

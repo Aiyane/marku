@@ -5,7 +5,7 @@ import re
 from marku import big_token
 from marku import little_token
 
-__all__ = ['HTMLBigToken', 'HTMLLittleToken']
+__token__ = ['HTMLBigToken', 'HTMLLittleToken']
 
 
 class HTMLBigToken(big_token.BaseBigToken):

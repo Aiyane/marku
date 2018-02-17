@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 __author__ = 'Aiyane'
+from marku.HTML_class import getClass
 
 
 class BaseRender(object):
@@ -41,7 +42,7 @@ class BaseRender(object):
             func = getattr(self, token.__name__ + 'Render')
             self.render_map[token.__name__] = func
 
-    def render(self, token):
+    def _render(self, token):
         """
         render入口
         """
@@ -62,7 +63,7 @@ class BaseRender(object):
         <style>{css}</style>
         </head><body id="container" class="export export-html">
         """.format(css=css, other=other)
-        content += self.render(token)
+        content += self._render(token)
         content += """
         </body></html>
         """
@@ -73,9 +74,18 @@ class BaseRender(object):
         递归调用子Token
         """
         rendered = ['<span>' +
-                    self.render(kid) + '</span>' for kid in token.kids]
+                    self._render(kid) + '</span>' for kid in token.kids]
         return ''.join(rendered)
+
+    def tokenClass(self, name):
+        if not hasattr(self, '_token_class'):
+            return getClass(name)
+        return self._token_class[name]
+
+    def addClass(self, cls_dict=None):
+        from marku.HTML_class import addClass
+        self._token_class = addClass(cls_dict)
 
     @staticmethod
     def _get_tokens(module):
-        return [getattr(module, token_name) for token_name in module.__all__]
+        return [getattr(module, token_name) for token_name in module.__token__]

@@ -5,7 +5,6 @@ from marku.render import BaseRender
 import html
 from marku import HTML_token
 from itertools import chain
-from marku.HTML_class import tokenClass
 
 
 class HTMLRenderer(BaseRender):
@@ -19,12 +18,12 @@ class HTMLRenderer(BaseRender):
     def StrongTokenRender(self, token):
         text = '<strong class="{strongClass}">{}</strong>'
         return text.format(
-            self.render_line(token), strongClass=tokenClass['strongClass'])
+            self.render_line(token), strongClass=self.tokenClass('strongClass'))
 
     def EmphasisTokenRender(self, token):
         text = '<em class="{emClass}">{}</em>'
         return text.format(
-            self.render_line(token), emClass=tokenClass['emClass'])
+            self.render_line(token), emClass=self.tokenClass('emClass'))
 
     def EscapeCharTokenRender(self, token):
         return self.render_line(token)
@@ -32,18 +31,18 @@ class HTMLRenderer(BaseRender):
     def InlineCodeTokenRender(self, token):
         text = '<code class="{codeClass}">{}</code>'
         return text.format(
-            self.render_line(token), codeClass=tokenClass['codeClass'])
+            self.render_line(token), codeClass=self.tokenClass('codeClass'))
 
     def DeleTokenRender(self, token):
         text = '<del class="{delClass}">{}</del>'
         return text.format(
-            self.render_line(token), delClass=tokenClass['delClass'])
+            self.render_line(token), delClass=self.tokenClass('delClass'))
 
     def ImageTokenRender(self, token):
         text = '<img class="{imgClass}" src="{}" title="{}" alt="{}">'
         inner = self.render_line(token)
         return text.format(
-            token.src, token.title, inner, imgClass=tokenClass['imgClass'])
+            token.src, token.title, inner, imgClass=self.tokenClass('imgClass'))
 
     def LinkTokenRender(self, token):
         text = '<a class="{aClass}" href="{target}" title="{title}">{inner}</a>'
@@ -51,25 +50,25 @@ class HTMLRenderer(BaseRender):
         title = self.RawTextRender(token.title)
         inner = self.render_line(token)
         return text.format(
-            aClass=tokenClass['aClass'], target=target, title=title, inner=inner)
+            aClass=self.tokenClass('aClass'), target=target, title=title, inner=inner)
 
     def AutoLinkTokenRender(self, token):
         text = '<a class="{aClass}" href="{target}">{inner}</a>'
         target = escape_url(token.target)
         inner = self.render_line(token)
         return text.format(
-            aClass=tokenClass['aClass'], target=target, inner=inner)
+            aClass=self.tokenClass('aClass'), target=target, inner=inner)
 
     def HeadTokenRender(self, token):
         text = '<h{level} class="{hClass}">{inner}</h{level}>\n'
         inner = self.render_line(token)
         return text.format(
-            hClass=tokenClass['hClass'], level=token.level, inner=inner)
+            hClass=self.tokenClass('hClass'), level=token.level, inner=inner)
 
     def QuoteTokenRender(self, token):
         text = '<blockquote class="{blockquoteClass}">\n{inner}</blockquote>\n'
         return text.format(
-            blockquoteClass=tokenClass['blockquoteClass'],
+            blockquoteClass=self.tokenClass('blockquoteClass'),
             inner=self.render_line(token))
 
     def BlockCodeTokenRender(self, token):
@@ -80,7 +79,7 @@ class HTMLRenderer(BaseRender):
             attr = ''
         inner = self.render_line(token)
         return text.format(
-            preClass=tokenClass['preClass'], attr=attr, inner=inner)
+            preClass=self.tokenClass('preClass'), attr=attr, inner=inner)
 
     def SeparatorTokenRender(self, token):
         return '<hr>\n'
@@ -110,14 +109,14 @@ class HTMLRenderer(BaseRender):
         body_rendered = body_text.format(inner=body_inner)
         return text.format(
             inner=head_rendered + body_rendered,
-            tableClass=tokenClass['tableClass'])
+            tableClass=self.tokenClass('tableClass'))
 
     def RawTextRender(self, token):
         return html.escape(token.content)
 
     def ParagraphTokenRender(self, token):
         return '<p class="{pClass}">{}</p>\n'.format(
-            self.render_line(token), pClass=tokenClass['pClass'])
+            self.render_line(token), pClass=self.tokenClass('pClass'))
 
     def ListItemRender(self, token):
         return '<li>{}</li>\n'.format(self.render_line(token))

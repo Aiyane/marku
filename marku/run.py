@@ -7,7 +7,7 @@ from marku import HTMLRenderer
 from marku.HTML_token import HTMLBigToken, HTMLLittleToken
 
 
-class Marku(object):
+class Marku(HTMLRenderer):
     def __init__(self, input_file, css_file=None, other=''):
         """
         input_file: 输入文件路径
@@ -18,14 +18,31 @@ class Marku(object):
         self.other = other
         self.css = ''
 
+    def add_extra(self, extras):
+        self._extras = extras
+        funcs = [getattr(extras, func_name) for func_name in extras.__func__]
+        for func in funcs:
+            setattr(self, func.__name__, func)
+
     def render(self, output_file=None):
         """
         output_file: 输出文件路径
         """
+
         try:
             with open(self.input_file, 'r', encoding="utf8") as fin:
                 big_token.add_token(HTMLBigToken)
                 little_token.add_token(HTMLLittleToken)
+                if hasattr(self, '_extras'):
+                    tokens = self._get_tokens(self._extras)
+                    super(Marku, self).__init__(*tokens)
+                    for token in tokens:
+                        if hasattr(token, 'match'):
+                            big_token.add_token(token)
+                        else:
+                            little_token.add_token(token)
+                else:
+                    super(Marku, self).__init__()
                 AST = big_token.DocumentToken(fin)
             if self.css_file is not None:
                 with open(self.css_file, 'r', encoding="utf8") as f:
@@ -33,7 +50,7 @@ class Marku(object):
         except IOError:
             print("打开文件出错, 请检查文件!")
 
-        rendered = HTMLRenderer().rendered(AST, self.css, self.other)
+        rendered = self.rendered(AST, self.css, self.other)
         if output_file is None:
             return rendered
         try:
