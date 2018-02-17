@@ -13,12 +13,14 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
         :List_Fence: 列表代码的栅格
         :Table_Fence: 表格的栅格
         :Code_Fence: 代码块的栅格
+        :Blank_Fence: 四个空格开头的代码删格
     """
     block_lines = []
     Quote_Fence = False
     List_Fence = False
     Table_Fence = False
     Code_Fence = False
+    Blank_Fence = False
 
     def insert_blank(content, value):
         """
@@ -114,6 +116,14 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
             else:
                 block_lines.append(line)
             continue
+        elif Blank_Fence:
+            if line.startswith(' ' * 4):
+                block_lines.append(line)
+                continue
+            else:
+                yield tokens['BlockCodeToken'](block_lines)
+                block_lines.clear()
+                Blank_Fence = False
         # 这里开始是每一行的判断
         # 也会接着上面语句块结束后接着判断接下来的一行
         # 也就是说, 用户即使没有按照语法标准
@@ -166,7 +176,7 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
                 Quote_Fence = True
             else:
                 List_Fence = True
-        elif line.startswith("```") or line.startswith("|"):
+        elif line.startswith("```") or line.startswith("|") or line.startswith(' ' * 4):
             if block_lines:
                 # 这里说明前面段落没有空行
                 token = deal_extra_token(block_lines)
@@ -178,6 +188,8 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
             block_lines.append(line)
             if line.startswith("|"):
                 Table_Fence = True
+            elif line.startswith(' ' * 4):
+                Blank_Fence = True
             else:
                 Code_Fence = True
         elif line.split('.')[0].isdigit():
