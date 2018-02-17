@@ -66,16 +66,16 @@ class HeadToken(BaseBigToken):
     def __init__(self, lines):
         """标题构造函数
         """
-        if len(lines) == 1:
-            hashes, content = lines[0].split('# ', 1)
-            content = content.split(' #', 1)[0].strip()
-            self.level = len(hashes) + 1
-        else:
-            if lines[-1][0] == '=':
-                self.level = 2
-            elif lines[-1][0] == '-':
-                self.level = 1
-            content = ' '.join([line.strip() for line in lines[:-1]])
+        # if len(lines) == 1:
+        hashes, content = lines[0].split('# ', 1)
+        content = content.split(' #', 1)[0].strip()
+        self.level = len(hashes) + 1
+        # else:
+            # if lines[-1][0] == '=':
+                # self.level = 2
+            # elif lines[-1][0] == '-':
+                # self.level = 1
+            # content = ' '.join([line.strip() for line in lines[:-1]])
 
         super().__init__(content, little_token.deal_with_line)
 
