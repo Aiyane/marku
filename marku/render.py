@@ -73,8 +73,7 @@ class BaseRender(object):
         """
         递归调用子Token
         """
-        rendered = ['<span>' +
-                    self._render(kid) + '</span>' for kid in token.kids]
+        rendered = [self._render(kid) for kid in token.kids]
         return ''.join(rendered)
 
     def tokenClass(self, name):

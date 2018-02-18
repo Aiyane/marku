@@ -118,7 +118,7 @@ class DotToken(big_token.BaseBigToken):
 
     @staticmethod
     def match(lines):
-        if lines[0].strip() == '...' and lines[-1] == '...':
+        if len(lines) > 1 and lines[0].strip() == '...' and lines[-1].strip() == '...':
             return True
         return False
 
@@ -177,3 +177,5 @@ def NewTokenRender(token):
     md.render('/home/aiyane/output.html')
 
 这样就可以在输出路径看到output.html了
+
+关于语法的扩展, my_token.py是一个扩展的例子, 在test2.md中有扩展的语法, 运行`python3 test.py`可以查看结果

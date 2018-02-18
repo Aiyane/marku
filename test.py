@@ -4,7 +4,7 @@
 Marku的简单使用
 为渲染的html标签添加class属性值
 """
-
+import my_token
 from marku import Marku
 import os
 import webbrowser
@@ -29,6 +29,7 @@ tokenClass = {
 def main():
     md = Marku(loc + "/test2.md")
     md.addClass(tokenClass)
+    md.add_extra(my_token)
     md.render(loc + "/out.html")
     webbrowser.open(loc + "/out.html")
 
