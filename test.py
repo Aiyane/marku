@@ -25,7 +25,13 @@ tokenClass = {
     "pClass":           "p"
 }
 
-md = Marku(loc + "/test2.md")
-md.addClass(tokenClass)
-md.render(loc + "/out.html")
-webbrowser.open(loc + "/out.html")
+
+def main():
+    md = Marku(loc + "/test2.md")
+    md.addClass(tokenClass)
+    md.render(loc + "/out.html")
+    webbrowser.open(loc + "/out.html")
+
+
+if __name__ == '__main__':
+    main()
