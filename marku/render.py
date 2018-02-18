@@ -48,21 +48,26 @@ class BaseRender(object):
         """
         return self.render_map[token.__class__.__name__](token)
 
-    def rendered(self, token, css='', other=''):
-        import os
+    def rendered(self, token, css='', other='', highlight=True):
         if css == '':
+            import os
             with open(os.path.dirname(os.path.realpath(__file__)) + '/style.css', 'r', encoding='utf8') as f:
                 css = f.read()
+
+        if highlight:
+            _highlight = """<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+<script >hljs.initHighlightingOnLoad();</script>"""
+        else:
+            _highlight = ''
+
         content = """<!doctype html>
         <html><head><meta charset="utf-8">
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
-        <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
-        <script >hljs.initHighlightingOnLoad();</script>
-        {other}
+        {highlight}{other}
         <style>{css}</style>
         </head><body id="container" class="export export-html">
-        """.format(css=css, other=other)
+        """.format(css=css, other=other, highlight=_highlight)
         content += self._render(token)
         content += """
         </body></html>
@@ -80,10 +85,6 @@ class BaseRender(object):
         if not hasattr(self, '_token_class'):
             return getClass(name)
         return self._token_class[name]
-
-    def addClass(self, cls_dict=None):
-        from marku.HTML_class import addClass
-        self._token_class = addClass(cls_dict)
 
     @staticmethod
     def _get_tokens(module):

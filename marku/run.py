@@ -8,21 +8,35 @@ from marku.HTML_token import HTMLBigToken, HTMLLittleToken
 
 
 class Marku(HTMLRenderer):
-    def __init__(self, input_file, css_file=None, other=''):
+    def __init__(self, input_file, css=None, other='', highlight=True):
         """
         input_file: 输入文件路径
         css_file: 输入css文件路径
+        other: head标签的其他语句
         """
+        self.highlight = highlight
         self.input_file = input_file
-        self.css_file = css_file
+        self.css_file = css
         self.other = other
         self.css = ''
 
     def add_extra(self, extras):
+        """
+        这是一个扩展语法的方法
+        extras: 自定义语法的模块, 即文件名
+        """
         self._extras = extras
         funcs = [getattr(extras, func_name) for func_name in extras.__func__]
         for func in funcs:
             setattr(self, func.__name__, func)
+
+    def addClass(self, cls_dict=None):
+        """
+        这是一个给标签增加class属性的方法
+        cls_dict: 增加的class属性值
+        """
+        from marku.HTML_class import addClass
+        self._token_class = addClass(cls_dict)
 
     def render(self, output_file=None):
         """
@@ -50,7 +64,7 @@ class Marku(HTMLRenderer):
         except IOError:
             print("打开文件出错, 请检查文件!")
 
-        rendered = self.rendered(AST, self.css, self.other)
+        rendered = self.rendered(AST, self.css, self.other, self.highlight)
         if output_file is None:
             return rendered
         try:

@@ -59,7 +59,7 @@ webbrowser.open(loc + "/out.html")
 ### 特点
 
 1. 该包的特点是能够极大的容忍用户写的markdown文件的语法错误, test2.md是一个充满语法错误的markdown文件, 但是其渲染出来的结果与test.md基本一致.
-2. 支持自定义标签的class
+2. 支持自定义标签的class, 代码高亮的开关
 3. 支持自定义css样式, 支持在head头部添加代码块
 4. 支持自定义的语法块以及语法块的具体处理
 
@@ -74,6 +74,10 @@ webbrowser.open(loc + "/out.html")
 
     code = '<style></style>'
     md = Marku('/home/aiyane/code/python/marku/test2.md', 'home/aiyane/style.css', code)
+
+默认代码高亮是打开的, 也许你希望在head头部定义其他风格的代码高亮, 所以需要关闭默认高亮
+
+    md = Marku('test2.md', css='style.css', other=code, highlight=False)
 
 你可能需要添加自定义的标签class属性, 目前支持以下标签
 
