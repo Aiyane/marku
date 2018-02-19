@@ -3,4 +3,4 @@ __pycache__
 .idea
 debug.py
 *.html
-
+.vscode
