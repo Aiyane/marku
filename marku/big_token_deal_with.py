@@ -22,53 +22,44 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
     Code_Fence = False
     Blank_Fence = False
 
-    # 这里为了处理额外插入的token
-    # 额外插入的token必须有一个类方法match, 用来判断该语句块是否符合这个token
-    def deal_extra_token():
-        if not block_lines:
-            return None
-        for token in extra_tokens:
-            if token.match(block_lines):
-                return token(block_lines)
-
     for line in _yield_line(lines):
         line = line.replace('\t', ' ' * 4)
-        if Quote_Fence or List_Fence:
-            # 处理列表块或引用块
-            # 这里的代码处理没有空行的能再识别接下来的语句块
-            if not line.startswith(("-", "*", "+", ">", " " * 4)) and not line.split('.')[0].isdigit()\
-                    and not (line.strip().startswith('>') and Quote_Fence):
-                if Quote_Fence:
-                    yield tokens["QuoteToken"](block_lines)
-                else:
-                    yield tokens["ListToken"](block_lines)
-                block_lines.clear()
-                List_Fence = Quote_Fence = False
-            elif line.strip().split('.')[0].isdigit() and List_Fence:
-                if not line.split('.')[1].startswith(' '):
-                    line = line.split('.')[0] + '. ' + line.split('.')[1]
+
+        if List_Fence:
+            # 列表
+            if line.startswith(("*", "-", "+", " "*4)) or line.split('.')[0].isdigit():
+                line = line_deal(line)
                 block_lines.append(line)
                 continue
             else:
-                if line.strip().startswith('>') and Quote_Fence:
-                    line = line.strip()
-                # 这里将一行中可能没有空格的不标准的语法加上空格
-                if line.strip()[1] != ' ':
-                    title = line.strip()[0]
-                    line = line.split(title, 1)[0] + title + " " + line.split(title, 1)[1]
+                yield tokens['ListToken'](block_lines)
+                block_lines.clear()
+                List_Fence = False
+
+        elif Quote_Fence:
+            # 引用
+            if line.strip().startswith('>'):
+                line = line_deal(line)
                 block_lines.append(line)
                 continue
+            else:
+                yield tokens['QuoteToken'](block_lines)
+                block_lines.clear()
+                Quote_Fence = False
+            
         elif Table_Fence:
             # 处理表格块
             # 这里的代码处理没有空行的能再识别接下来的语句块
-            if not line.startswith("|"):
+            if line.startswith("|"):
+                block_lines.append(line)
+                continue
+            else:
                 Table_Fence = False
                 yield tokens["TableToken"](block_lines)
                 block_lines.clear()
-            else:
-                block_lines.append(line)
-                continue
+
         elif Code_Fence:
+            # ```开头的代码块
             if line.startswith('```'):
                 Code_Fence = False
                 block_lines.append(line)
@@ -77,7 +68,9 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
             else:
                 block_lines.append(line)
             continue
+
         elif Blank_Fence:
+            # 空格开头的代码块
             if line.startswith(' ' * 4):
                 block_lines.append(line)
                 continue
@@ -91,53 +84,48 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
         # 也就是说, 用户即使没有按照语法标准
         # 没有一个空行, 也是会对这行语句进行判断的
         # 这样就能继续处理并不符合标准语法的语句
-        token = deal_extra_token()
-        if token:
+        token = deal_extra_token(block_lines, extra_tokens)
+        if not is_mark(line) and not token:
+            block_lines.append(line)
+            continue
+        elif token:
             yield token
             block_lines.clear()
             if not is_mark(line):
                 block_lines.append(line)
                 continue
         else:
-            if is_mark(line):
-                yield init_token(block_lines)
-                block_lines.clear()
-            else:
-                block_lines.append(line)
-                continue
+            yield init_token(block_lines)
+            block_lines.clear()
 
         if line.startswith("#"):
-            # index是在那个位置开始就没有'#', 而且不是' '
-            # 说明用户没有遵守语法标准
-            # 我们需要在那个位置之后加上一个空格
-            index = 0
-            for char in line:
-                if char != "#":
-                    if char == ' ':
-                        index = 0
-                    break
-                index += 1
-            if index != 0:
-                line = ''.join(line[:index]) + ' ' + ''.join(line[index:])
+            # 处理标题
+            line = line_deal(line)
             yield tokens["HeadToken"]([line])
+
         elif line.strip() in ("---", "===", "***", "* * *"):
             # 说明是分隔符
             yield tokens["SeparatorToken"]([line.strip()])
+
         elif line.startswith(("-", "*", "+", ">")):
-            if line[1] != ' ':
-                line = line[0] + ' ' + ''.join(line[1:])
+            # 列表或者引用
+            line = line_deal(line)
             block_lines.append(line)
             if line.startswith(">"):
                 Quote_Fence = True
             else:
                 List_Fence = True
+
         elif line.split('.')[0].isdigit():
-            if not line.split('.')[1].startswith(' '):
-                line = line.split('.')[0] + '. ' + line.split('.')[1]
+            # 列表
+            line = line_deal(line)
             block_lines.append(line)
             List_Fence = True
+
         elif not line.strip():
+            # 空行
             continue
+
         else:
             block_lines.append(line)
             if line.startswith("|"):
@@ -146,6 +134,36 @@ def init_deal_with(lines, tokens, init_token, root=None, extra_tokens=None):
                 Blank_Fence = True
             else:
                 Code_Fence = True
+
+
+def line_deal(line):
+    # 处理用户输入不标准
+    # 标题行
+    if line[0] == "#":
+        index = 0
+        for char in line:
+            if char != "#":
+                if char == ' ':
+                    index = 0
+                break
+            index += 1
+        if index != 0:
+            line = ''.join(line[:index]) + ' ' + ''.join(line[index:])
+
+    # 引用行
+    elif line.strip().startswith('>'):
+        line = '> ' + line.strip()[1:]
+    
+    # 列表行
+    elif line.strip().split('.')[0].isdigit():
+        num, content = line.split('.', 1)
+        line = num + '. ' + content.strip()
+    elif line.strip()[1] != ' ':
+        title = line.strip()[0]
+        line = line.split(title, 1)[0] + title + ' ' + line.split(title, 1)[1]
+    return line
+
+
 
 
 def is_mark(line):
@@ -162,3 +180,12 @@ def _yield_line(lines):
     for line in lines:
         yield line
     yield '\n'
+
+# 这里为了处理额外插入的token
+# 额外插入的token必须有一个类方法match, 用来判断该语句块是否符合这个token
+def deal_extra_token(block_lines, extra_tokens):
+    if not block_lines:
+        return None
+    for token in extra_tokens:
+        if token.match(block_lines):
+            return token(block_lines)
