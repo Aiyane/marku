@@ -26,7 +26,19 @@ class Marku(HTMLRenderer):
         extras: 自定义语法的模块, 即文件名
         """
         self._extras = extras
-        funcs = [getattr(extras, func_name) for func_name in extras.__func__]
+        funcs = self._getfunc(extras)
+        self._add_funcs(funcs)
+
+    def _getfunc(self, extras):
+        """
+        获得额外func
+        """
+        return [getattr(extras, func_name) for func_name in extras.__func__]
+
+    def _add_funcs(self, funcs):
+        """
+        增加额外的处理方法
+        """
         for func in funcs:
             setattr(self, func.__name__, func)
 
@@ -37,6 +49,17 @@ class Marku(HTMLRenderer):
         """
         from marku.HTML_class import addClass
         self._token_class = addClass(cls_dict)
+
+    def _add_tokens(self, tokens):
+        """
+        增加额外的tokens
+        """
+        super(Marku, self).__init__(*tokens)
+        for token in tokens:
+            if hasattr(token, 'match'):
+                big_token.add_token(token)
+            else:
+                little_token.add_token(token)
 
     def render(self, output_file=None):
         """
@@ -49,12 +72,7 @@ class Marku(HTMLRenderer):
                 little_token.add_token(HTMLLittleToken)
                 if hasattr(self, '_extras'):
                     tokens = self._get_tokens(self._extras)
-                    super(Marku, self).__init__(*tokens)
-                    for token in tokens:
-                        if hasattr(token, 'match'):
-                            big_token.add_token(token)
-                        else:
-                            little_token.add_token(token)
+                    self._add_tokens(tokens)
                 else:
                     super(Marku, self).__init__()
                 AST = big_token.DocumentToken(fin)
