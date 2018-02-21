@@ -63,7 +63,7 @@ class RawText(BaseLittleToken):
 
 
 class EscapeCharToken(BaseLittleToken):
-    """逃逸字符Token, 例如(\#)"""
+    """逃逸字符Token, 例如(\")"""
 
     pattern = re.compile(r"\\([\*\(\)\[\]\~])")
 

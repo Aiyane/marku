@@ -21,7 +21,7 @@ class DotToken(big_token.BaseBigToken):
 
 
 def DotTokenRender(token):
-    return '<p>=====我的自定义语法内容=====<br/>' + token.content + '</br>========就在上面=======</p>'
+    return '<p>=====我的自定义语法内容=====<br/>' + token.content + '</br>=======================</p>'
 
 
 # 行内语法
