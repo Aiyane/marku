@@ -1,7 +1,83 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+这个文件用来处理块级语法的划分,  由于要满足以下目标, 所以代码由本来只渲染标准markdown语法的20行以内变成上百行, 真是悲伤的故事
+目标:
+    1. 容忍默认的markdown的块级语法中每一行可能出现的语法错误 
+    2. 容忍无论是markdown默认块级语法还是用户自定义的块级语法的无空行分割的错误
+    3. 自定义块级语法按照贪婪匹配模式
+
+在说明中'<==>'代表渲染结果相等, '=>'代表渲染结果为'()'括号中为例子注释
+以下的例子渲染结果应该为相同的:
+    1. 在行头标志后没有空格
+        ## 标题       <==>         ##标题
+        > 引用        <==>         >引用
+        > > 引用      <==>         >>引用       <==>      > >引用
+        - 列表        <==>         -列表
+        1. 列表       <==>         1.列表
+    2. 以下引用是等效的
+        > > > 引用
+          > > >引用
+        >>>引用
+        > >>引用
+        >> >引用
+            >>>引用(会被优先当成引用而不不是缩进代码)
+        ...(类似的其他空格错误)
+    3. 以下下划线被认为是相同的
+        ---
+         ---
+          ---
+            --- (会被优先当成下划线而不是缩进代码)
+        (类似的其他前有空格的错误)
+    4. 所有语句块的缺失空行的错误
+        ```
+        代码块
+        ```
+        ## 标题
+        --- (下划线)
+            缩进代码
+            缩进代码
+        普通段落
+        |表格|表格|
+        |:---|:---:|
+        |表格|表格|
+        > 引用
+        > 引用
+        - 列表
+        - 列表
+            1. 有序列表
+            2. 有序列表
+        (其他自定义块级语法)
+
+注意普通段落的换行并不会有效果, 只会是一个空格连接, 需要有空行才会分段
+    这是普通的一行             => 这是普通的一行 这里的换行并没有效果 
+    这里的换行并没有效果
+    =========================================================
+    这是普通的一行
+                             => 这是普通的一行
+    加上空行才是分段               加上空行才是分段
+
+在缩进代码中的特殊语法只会被当成代码, 但是如果是以特殊语法开头则不是
+    ---(前面有四个空格, 但是不是在缩进代码块中, 所以会被当成下划线)
+    >>> 引用(前面有四个空格, 但是不是在缩进代码块中, 所以会被当成引用)
+
+    这是代码块的开始
+    --- (会被当成代码)
+    >>> 引用(会被当成代码)
+
+贪婪的匹配模式:
+    例如自定义语法:
+        ...
+        这是三个'.'包围的语法
+        ...
+    那么以下会被整体匹配, 而不是只匹配前三行:
+        ...
+        这是三个'.'包围的语法
+        ...
+        ...
+    
+"""
 __author__ = "Aiyane"
-import debug
 
 
 def init_deal_with(lines, tokenList, tokens, init_token, root=None):
@@ -63,7 +139,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             # 说明是分隔符
             return tokens["SeparatorToken"]([line.strip()])
 
-        elif line.startswith(("-", "*", "+", ">")):
+        elif line.startswith(("-", "*", "+", ">")) and not line.startswith('**'):
             # 列表或者引用
             line = line_deal(line)
             block_lines.append(line)
@@ -77,7 +153,6 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             line = line_deal(line)
             block_lines.append(line)
             List_Fence = True
-
 
         else:
             block_lines.append(line)
@@ -96,7 +171,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         nonlocal Blank_Fence
         if List_Fence:
             # 列表
-            if line.startswith(("*", "-", "+", " "*4)) or line.split('.')[0].isdigit():
+            if (line.startswith(("*", "-", "+", " "*4)) or line.split('.')[0].isdigit()) and not line.startswith('**'):
                 line = line_deal(line)
                 block_lines.append(line)
                 return None
@@ -218,7 +293,6 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
                 yield token
 
 
-
 def line_deal(line):
     # 处理用户输入不标准
     # 标题行
@@ -247,13 +321,12 @@ def line_deal(line):
     return line
 
 
-
-
 def has_mark(line):
     # 判断这一行开头是否有特殊标记
-    if line.startswith(('-', '*', '+', '>', '```', '|', ' ' * 4, '#')) \
-            or not line.strip() or line.split('.')[0].isdigit() \
-            or line.strip() in ("---", "===", "***", "* * *"):
+    if line.startswith(('-', '*', '+', '>', '```', '|', ' ' * 4, '#')) or not line.strip() \
+            or line.split('.')[0].isdigit() or line.strip() in ("---", "===", "***", "* * *"):
+        if line.startswith('**'):
+            return False
         return True
     return False
 
@@ -265,6 +338,7 @@ def _yield_line(lines):
     yield '\n'
     yield '\n'
 
+
 def deal_extra_token(block_lines, tokenList):
     # 这里为了处理额外插入的token
     # 额外插入的token必须有一个类方法match, 用来判断该语句块是否符合这个token
@@ -273,6 +347,7 @@ def deal_extra_token(block_lines, tokenList):
     for token in tokenList:
         if token.match(block_lines):
             return token(block_lines)
+
 
 def popList(lines):
     """
@@ -294,6 +369,7 @@ def popList(lines):
         if i == length - 1:
             yield None, lines[0:i]
         yield lines[i+1:], lines[0:i+1]
+
 
 def _find_token(tokenList, init_token, lines):
     """

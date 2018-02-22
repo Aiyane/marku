@@ -11,7 +11,7 @@ __func__ = ['DotTokenRender', 'NewTokenRender']
 # 多行语法
 class DotToken(big_token.BaseBigToken):
     def __init__(self, lines):
-        self.content = ''.join(lines[1:-1])
+        super().__init__(''.join(lines[1:-1]), little_token.deal_with_line)
 
     @staticmethod
     def match(lines):
@@ -20,8 +20,9 @@ class DotToken(big_token.BaseBigToken):
         return False
 
 
-def DotTokenRender(token):
-    return '<p>=====我的自定义语法内容=====<br/>' + token.content + '</br>=======================</p>'
+def DotTokenRender(md, token):
+    return '<p>=====我的自定义语法内容=====<br/>' + md.render_line(token) + '</br>=======================</p>'
+    # return '<p>=====我的自定义语法内容=====<br/>' + token.content + '</br>=======================</p>'
 
 
 # 行内语法
@@ -33,5 +34,5 @@ class NewToken(little_token.BaseLittleToken):
         self.content = match_obj.group(1)
 
 
-def NewTokenRender(token):
+def NewTokenRender(md, token):
     return '<strong>' + token.content + '</strong>'

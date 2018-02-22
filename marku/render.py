@@ -46,7 +46,7 @@ class BaseRender(object):
         """
         render入口
         """
-        return self.render_map[token.__class__.__name__](token)
+        return self.render_map[token.__class__.__name__](self, token)
 
     def rendered(self, token, css='', other='', highlight=True):
         if css == '':

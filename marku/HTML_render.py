@@ -15,43 +15,51 @@ class HTMLRenderer(BaseRender):
         HTMLToken = self._get_tokens(HTML_token)
         super().__init__(*chain(HTMLToken, extras))
 
+    @staticmethod
     def StrongTokenRender(self, token):
         text = '<strong class="{strongClass}">{}</strong>'
         return text.format(
             self.render_line(token), strongClass=self.tokenClass('strongClass'))
 
+    @staticmethod
     def EmphasisTokenRender(self, token):
         text = '<em class="{emClass}">{}</em>'
         return text.format(
             self.render_line(token), emClass=self.tokenClass('emClass'))
 
+    @staticmethod
     def EscapeCharTokenRender(self, token):
         return self.render_line(token)
 
+    @staticmethod
     def InlineCodeTokenRender(self, token):
         text = '<code class="{codeClass}">{}</code>'
         return text.format(
             self.render_line(token), codeClass=self.tokenClass('codeClass'))
 
+    @staticmethod
     def DeleTokenRender(self, token):
         text = '<del class="{delClass}">{}</del>'
         return text.format(
             self.render_line(token), delClass=self.tokenClass('delClass'))
 
+    @staticmethod
     def ImageTokenRender(self, token):
         text = '<img class="{imgClass}" src="{}" title="{}" alt="{}">'
         inner = self.render_line(token)
         return text.format(
             token.src, token.title, inner, imgClass=self.tokenClass('imgClass'))
 
+    @staticmethod
     def LinkTokenRender(self, token):
         text = '<a class="{aClass}" href="{target}" title="{title}">{inner}</a>'
         target = escape_url(token.target)
-        title = self.RawTextRender(token.title)
+        title = self.RawTextRender(self, token.title)
         inner = self.render_line(token)
         return text.format(
             aClass=self.tokenClass('aClass'), target=target, title=title, inner=inner)
 
+    @staticmethod
     def AutoLinkTokenRender(self, token):
         text = '<a class="{aClass}" href="{target}">{inner}</a>'
         target = escape_url(token.target)
@@ -59,18 +67,21 @@ class HTMLRenderer(BaseRender):
         return text.format(
             aClass=self.tokenClass('aClass'), target=target, inner=inner)
 
+    @staticmethod
     def HeadTokenRender(self, token):
         text = '<h{level} class="{hClass}">{inner}</h{level}>\n'
         inner = self.render_line(token)
         return text.format(
             hClass=self.tokenClass('hClass'), level=token.level, inner=inner)
 
+    @staticmethod
     def QuoteTokenRender(self, token):
         text = '<blockquote class="{blockquoteClass}">\n{inner}</blockquote>\n'
         return text.format(
             blockquoteClass=self.tokenClass('blockquoteClass'),
             inner=self.render_line(token))
 
+    @staticmethod
     def BlockCodeTokenRender(self, token):
         text = '<pre class="{preClass}">\n<code {attr}>\n{inner}</code>\n</pre>\n'
         if token.language:
@@ -81,9 +92,11 @@ class HTMLRenderer(BaseRender):
         return text.format(
             preClass=self.tokenClass('preClass'), attr=attr, inner=inner)
 
+    @staticmethod
     def SeparatorTokenRender(self, token):
         return '<hr>\n'
 
+    @staticmethod
     def ListTokenRender(self, token):
         text = '<{tag}{attr}>\n{inner}</{tag}>\n'
         if token.start:
@@ -95,12 +108,13 @@ class HTMLRenderer(BaseRender):
         inner = self.render_line(token)
         return text.format(tag=tag, attr=attr, inner=inner)
 
+    @staticmethod
     def TableTokenRender(self, token):
         text = '<table class="{tableClass}">\n{inner}</table>\n'
         if token.has_header:
             head_text = '<thead>\n{inner}</thead>\n'
             header = token.kids[0]
-            head_inner = self.TableRowRender(header, True)
+            head_inner = self.TableRowRender(self, header, True)
             head_rendered = head_text.format(inner=head_inner)
         else:
             head_rendered = ''
@@ -111,33 +125,41 @@ class HTMLRenderer(BaseRender):
             inner=head_rendered + body_rendered,
             tableClass=self.tokenClass('tableClass'))
 
+    @staticmethod
     def RawTextRender(self, token):
         return html.escape(token.content)
 
+    @staticmethod
     def ParagraphTokenRender(self, token):
         return '<p class="{pClass}">{}</p>\n'.format(
             self.render_line(token), pClass=self.tokenClass('pClass'))
 
+    @staticmethod
     def ListItemRender(self, token):
         return '<li>{}</li>\n'.format(self.render_line(token))
 
+    @staticmethod
     def TableRowRender(self, token, is_header=False):
         if not is_header and token.header:
             return ""
         text = '<tr>\n{inner}</tr>\n'
         inner = ''.join(
-            [self.TableCellRender(kid, is_header) for kid in token.kids])
+            [self.TableCellRender(self, kid, is_header) for kid in token.kids])
         return text.format(inner=inner)
 
+    @staticmethod
     def QuoteItemRender(self, token):
         return '<p>{}</p>'.format(self.render_line(token))
 
+    @staticmethod
     def HTMLBigTokenRender(self, token):
         return token.content
 
+    @staticmethod
     def HTMLLittleTokenRender(self, token):
         return token.content
 
+    @staticmethod
     def TableCellRender(self, token, in_header=False):
         text = '<{tag}{attr}>{inner}</tag>\n'
         tag = 'th' if in_header else 'td'
@@ -151,6 +173,7 @@ class HTMLRenderer(BaseRender):
         inner = self.render_line(token)
         return text.format(tag=tag, attr=attr, inner=inner)
 
+    @staticmethod
     def DocumentTokenRender(self, token):
         return self.render_line(token)
 

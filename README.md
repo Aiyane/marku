@@ -111,7 +111,7 @@ webbrowser.open(loc + "/out.html")
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # my_token.py
-from marku import big_token
+from marku import big_token, little_token
 
 __token__ = ['DotToken']
 __func__ = ['DotTokenRender']
@@ -119,6 +119,7 @@ __func__ = ['DotTokenRender']
 class DotToken(big_token.BaseBigToken):
     def __init__(self, lines):
         self.content = ''.join(lines[1:-1])
+        super().__init__(self.content, little_token.deal_with_line)
 
     @staticmethod
     def match(lines):
@@ -126,28 +127,42 @@ class DotToken(big_token.BaseBigToken):
             return True
         return False
 
-def DotTokenRender(token):
-    return '<p>我的语法内容<br/>' + token.content + '</br>就在上面</p>'
+def DotTokenRender(render, token):
+    # 如果你不希望按照markdow语法渲染你的结果, 那么就直接返回你需要的语法类的对象的内容也行
+    # 如以下返回的是token.content, 就是上面的类的构造函数你保存的属性
+    # return '<p>我的语法内容<br/>' + token.content + '</br>就在上面</p>'
+    # 如果你需要markdown格式来渲染你的内容, 那么就调用渲染函数直接渲染语法类的对象, 如以下
+    return '<p>我的语法内容<br/>' + render.render_line(token) + '</br>就在上面</p>'
 ```
 
-这个自定义的语法为多行的语法, 并不是一行以内的语法, 所以DotToken需要继承big_token.BaseBigToken 在你定义的类中, 你的构造函数会接受一个参数, 这个参数是一个列表, 而且列表中的每一个元素就是每一行, 而且肯定是你语法块的那些行, 所以你可以对这个语法块进行你需要的任何处理, 在这个例子中只是保存`...`之内的内容为一个属性.
+这个自定义的语法为多行的语法, 并不是一行以内的语法, 所以DotToken需要继承big_token.BaseBigToken 在你定义的类中, 你的构造函数会接受一个参数, 这个参数是一个列表, 而且列表中的每一个元素就是每一行, 而且肯定是你语法块的那些行, 所以你可以对这个语法块进行你需要的任何处理, 在这个例子中只是将`...`之内的内容进行实例化.
+
+在little_token中有deal_with_line方法, 这个方法会对多行语法中的内容按照markdown进行解析, 实例化的时候传入解析内容与这个函数即可, 即`super().__init__(content, little_token.deal_with_line)` 这一行
 
 如果你定义的是一个跨越多行的语法块, 你必须定义一个**match**方法, 该方法必须是被@staticmethod装饰, 这个方法的作用是判断这个语句块是否符合你定义的语法, 可以看出, 只要第一行为`...`, 最后一行也为`...`, 那么就是符合语句的, 返回True, 否则返回False, 另外这个文件需要有一个全局变量`__token__`, 这是一个列表, 里面是你需要添加的语法类名.
 
-你还需要定义一个处理内容的方法, 该方法的命名必须是**类名+Render**, 你会接收一个语法类的对象, 然后返回的就是html需要显示的内容. 最后使用如下
+你还需要定义一个处理内容的方法, 该方法的命名必须是**类名+Render**, 你必须接收的第一个参数为Marku对象的实例, 第二个参数为语法类的对象, 然后返回的就是html需要显示的内容. 使用方法可以参见注释.
 
-    import my_token
+最后添加自定义的语法块只需要进行如下:
 
-    ...# 得到Marku对象md的一系列操作
-    md.add_extra(my_token)
+```py
+import my_token  # 你写的my_token.py文件
 
-仅仅简单调用`add_extra`函数你就添加了额外的语法处理了.如果你需要处理的是*一行之中的语法*例如在两个`!`之间也是强调内容
+# ...
+# 得到Marku对象md的一系列操作
+md.add_extra(my_token)
+```
+
+仅仅简单调用`add_extra`函数你就添加了额外的语法处理了.如果你需要处理的是 *一行之中的语法* 例如在两个`!`之间也是强调内容
 
     这是一句话的!重点强调!的部分
 
 上面中`!重点强调!`就是你定义的新语法, 那么还是在刚才的文件里, 加上以下内容即可添加新语法.
 
 ```py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# my_token.py
 import re
 from marku import little_token
 
@@ -162,7 +177,7 @@ class NewToken(little_token.BaseLittleToken):
     def __init__(self, match_obj):
         self.content = match_obj.group(1)
 
-def NewTokenRender(token):
+def NewTokenRender(render, token):
     return '<em>' + token.content + '</em>'
 ```
 
