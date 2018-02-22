@@ -4,6 +4,14 @@
 
 这是一个`Markdown`解释器, 通过解析出`Markdown`文件的语法树, 再利用语法树解析成`HTML`格式
 
+## 目录
+
+- [特点](#特点)
+- [测试](#测试)
+- [快速开始](#快速开始)
+- [详细使用](#详细使用)
+- [注意事项](#注意事项)
+
 ## 特点
 
 1. 该包的特点是能够极大的容忍用户写的markdown文件的语法错误, test2.md是一个充满语法错误的markdown文件, 但是其渲染出来的结果与test.md基本一致.
@@ -11,35 +19,11 @@
 3. 支持自定义css样式, 支持在head头部添加代码块
 4. 支持自定义的语法块以及语法块的具体处理
 
-## 目录
-
-下载源码后, 打开源码文件夹到主目录下, 即 `marku-master` 目录. 这是的文件目录结构如下
-
-- marku-master
-    - marku
-        - HTML_render.py
-        - HTML_token.py
-        - HTML_class.py
-        - big_token.py
-        - big_token_deal_with.py
-        - little_token.py
-        - little_token_deal_with.py
-        - render.py
-        - run.py
-        - style.css
-        - `__init__.py`
-    - test.py
-    - test2.py
-    - test.md
-    - test2.md
-    - .gitignore
-    - README.md
-
 ## 测试
 
 `marku`文件夹为此包, `test.py` 是一个使用例子, 运行`python3 test.py`查看例子结果, `test.py2`是另一个例子, 运行`python3 test2.py {输入文件名} {输出文件名}`, 输入文件名为markdown文件, 输出为html文件
 
-## 简单使用
+## 快速开始
 
 该包支持自定义渲染css文件, 在head中添加其他代码(other), style.css是默认css样式, test.md是测试的markdown文件, 以下是使用例子, 默认使用`highlight.js`高亮代码
 
@@ -214,9 +198,9 @@ def NewTokenRender(render, token):
 
 关于语法的扩展, my_token.py是一个扩展的例子, 在test2.md中有扩展的语法, 运行`python3 test.py`可以查看结果
 
-## 使用说明
+## 注意事项
 
-使用说明中`<==>`代表渲染结果相等, `=>`代表渲染结果为, `()`括号中为例子注释
+注意事项中`<==>`代表渲染结果相等, `=>`代表渲染结果为, `()`括号中为例子注释
 
 以下的例子渲染结果应该为相同的:
 
