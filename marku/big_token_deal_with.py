@@ -121,6 +121,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         :Table_Fence: 表格的栅格
         :Code_Fence: 代码块的栅格
         :Blank_Fence: 四个空格开头的代码删格
+        :save_token: 临时保存的token
     """
     block_lines = []
     Quote_Fence = False
@@ -128,7 +129,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
     Table_Fence = False
     Code_Fence = False
     Blank_Fence = False
-    wait_next = None
+    save_token = None
 
     # 倒序查找是否有符合的token
     def find_token(block_lines):
@@ -136,7 +137,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         以最后一行为基准, 例如1至10行, 则判断1-10, 再判断2-10, 3-30, ...最后10
         当中有任意一段判断符合Token语法, 例如3-10符合, 就将1-2先以init_token的形式yield出
         再让3-10行yield出, 为什么不yield 3-10的token呢? 因为可能下一行会让3-11行也符合
-        Token语法, 所以我们只会将token保存在wait_next变量中, 不会直接在这个函数返回token
+        Token语法, 所以我们只会将token保存在save_token变量中, 不会直接在这个函数返回token
         记得我们的目标是 **贪婪匹配**
         参数:
             :block_lines: 判断的多行列表
@@ -149,9 +150,9 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             if token:
                 for _token in _find_token(tokenList, init_token, _lines):
                     yield _token
-                nonlocal wait_next
-                wait_next = token
-                yield lines
+                nonlocal save_token 
+                save_token = token
+                yield 1
                 break
 
     def deal_mark_line(line):
@@ -266,61 +267,44 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             #     :is_continue: 对外层循环的continue
         is_continue = False
         for token in find_token(block_lines):
-            # 进行贪婪匹配, 如果匹配到的token是以最后一行为基准的
-            # 那么token会返回一个list类型, 这时候需要贪婪的读取下一行
-            # 再进行匹配, 如果没有匹配到, 就返回刚刚匹配的token(wait_next)
-            # 再将没有用到的新line加到block_lines中
-            if isinstance(token, list):
+            if isinstance(token, int):
                 block_lines.append(line)
                 is_continue = True
                 break
-            elif token:
-                yield token
+            yield token
         if is_continue:
             continue
-        if wait_next:
-            yield wait_next
-            wait_next = None
+
+        if save_token:
+            yield save_token 
+            save_token = None
             first_line = block_lines[-1]
             scond_line = line
             block_lines.clear()
+
             if has_mark(first_line) and first_line.strip():
+                # 第一行有标志的
                 token = deal_mark_line(first_line)
                 if token:
                     yield token
                 token = deal_mark_tail_line(scond_line)
-                if not token:
-                    continue
-                if not isinstance(token, bool):
+                if token and not isinstance(token, bool):
                     yield token
-                    block_lines.clear()
-            else:
-                if has_mark(scond_line):
-                    yield init_token(first_line)
-                    if not scond_line.strip():
-                        continue
-                    token = deal_mark_line(scond_line)
-                    if token:
-                        yield token
-                        continue
-                else:
-                    block_lines.append(first_line)
-                    # block_lines.append(scond_line)
-        if not has_mark(line):
-            block_lines.append(line)
-            continue
-        elif block_lines:
-            yield init_token(block_lines)
-            block_lines.clear()
-        # =================================================
+            elif first_line.strip():
+                # 第一行没标志的
+                block_lines.append(first_line)
 
-        if not line.strip():
-            # 空行
-            continue
-        else:
+        if has_mark(line):
+            if block_lines:
+                yield init_token(block_lines)
+                block_lines.clear()
+            if not line.strip():
+                continue
             token = deal_mark_line(line)
             if token:
                 yield token
+        else:
+            block_lines.append(line)
 
 
 def line_deal(line):
