@@ -3,7 +3,7 @@
 """
 这个文件用来处理块级语法的划分,  由于要满足以下目标, 所以代码由本来只渲染标准markdown语法的20行以内变成上百行, 真是悲伤的故事
 目标:
-    1. 容忍默认的markdown的块级语法中每一行可能出现的语法错误 
+    1. 容忍默认的markdown的块级语法中每一行可能出现的语法错误
     2. 容忍无论是markdown默认块级语法还是用户自定义的块级语法的无空行分割的错误
     3. 自定义块级语法按照贪婪匹配模式
 
@@ -44,7 +44,7 @@
 ```
 
 ###### 所有语句块的缺失空行的错误
-      
+
 ```
 ## 标题
 --- (下划线)
@@ -66,7 +66,7 @@
 ###### 注意普通段落的换行并不会有效果, 只会是一个空格连接, 需要有空行才会分段
 
 ```
-这是普通的一行             => 这是普通的一行 这里的换行并没有效果 
+这是普通的一行             => 这是普通的一行 这里的换行并没有效果
 这里的换行并没有效果
 =========================================================
 这是普通的一行
@@ -150,7 +150,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             if token:
                 for _token in _find_token(tokenList, init_token, _lines):
                     yield _token
-                nonlocal save_token 
+                nonlocal save_token
                 save_token = token
                 yield 1
                 break
@@ -202,7 +202,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         nonlocal Blank_Fence
         if List_Fence:
             # 列表
-            if line.startswith(("* ", "-", "+", " "*4)) or line.split('.')[0].isdigit():
+            if line.startswith(("* ", "-", "+", " " * 4)) or line.split('.')[0].isdigit():
                 line = line_deal(line)
                 block_lines.append(line)
                 return None
@@ -276,7 +276,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             continue
 
         if save_token:
-            yield save_token 
+            yield save_token
             save_token = None
             first_line = block_lines[-1]
             scond_line = line
@@ -380,7 +380,7 @@ def popList(lines):
     for i in (range(length)):
         if i == length - 1:
             yield None, lines[0:i]
-        yield lines[i+1:], lines[0:i+1]
+        yield lines[i + 1:], lines[0:i + 1]
 
 
 def _find_token(tokenList, init_token, lines):
