@@ -16,13 +16,13 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         :Blank_Fence: 四个空格开头的代码删格
         :save_token: 临时保存的token
     """
-    block_lines = []                                                                                        ## 这是代码缓冲列表
-    Quote_Fence = False                                                                                     ## 当判断为有引用标志'>'开头时, 这个变量为True
-    List_Fence = False                                                                                      ## 当判断为列表标志时, 为True
-    Table_Fence = False                                                                                     ## 当判断为表格标志时, 为True
-    Code_Fence = False                                                                                      ## 当判断为代码块标志时...
-    Blank_Fence = False                                                                                     ## 当判断为缩进代码标志时
-    save_token = None                                                                                       ## 这是保存的临时token
+    block_lines = []
+    Quote_Fence = False
+    List_Fence = False
+    Table_Fence = False
+    Code_Fence = False
+    Blank_Fence = False
+    save_token = None
 
     # 倒序查找是否有符合的token
     def find_token(block_lines):
@@ -38,48 +38,48 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             :_lines: 以第一行为基准的多行, 例如1行, 1-2行, 2-3行 ...
             _lines + lines == block_lines
         """
-        for lines, _lines in popList(block_lines):                                                          ## popList函数迭代出判断的列表
-            token = deal_extra_token(lines, tokenList)                                                      ## 得到这个列表所匹配到的token, 可能是None
+        for lines, _lines in popList(block_lines):
+            # 得到这个列表所匹配到的token, 可能是None
+            token = deal_extra_token(lines, tokenList)
             if token:
-                for _token in _find_token(tokenList, init_token, _lines):                                   ## 如果匹配到有, 那么前一个列表调用递归函数_find_token
-                    yield _token                                                                            ## 将前列的token yield出去
-                nonlocal save_token                                                                         ## 声明外部变量
-                save_token = token                                                                          ## 用外部变量来保存得到的token
-                yield 1                                                                                     ## yield出1来表示匹配用到到最后一行, 请求加一行再匹配, 以符合贪婪匹配
-                break                                                                                       ## 结束
+                # 如果匹配到有, 那么前一个列表调用递归函数_find_token
+                for _token in _find_token(tokenList, init_token, _lines):
+                    yield _token
+                nonlocal save_token
+                save_token = token
+                yield 1
+                break
 
-    def deal_mark_line(line):                                                                               ## 处理带有标志行的函数
-        nonlocal Quote_Fence                                                                                ## 声明外部变量
+    def deal_mark_line(line):
+        nonlocal Quote_Fence
         nonlocal List_Fence
         nonlocal Blank_Fence
         nonlocal Table_Fence
         nonlocal Code_Fence
         if line.startswith("#"):
             # 处理标题
-            line = line_deal(line)                                                                          ## line_deal会规范这一行, 比如在'#'和字符之间加上空格
-            return tokens["HeadToken"]([line])                                                              ## 返回标题token
+            line = line_deal(line)
+            return tokens["HeadToken"]([line])
 
-        elif line.strip() in ("---", "===", "***", "* * *"):                                                
-            # 说明是分隔符
-            return tokens["SeparatorToken"]([line.strip()])                                                 ## 返回分隔符token
+        elif line.strip() in ("---", "===", "***", "* * *"):
+            return tokens["SeparatorToken"]([line.strip()])
 
         elif line.startswith(("-", "* ", "+", ">")):
             # 列表或者引用
-            line = line_deal(line)                                                                          ## 规范这一行
-            block_lines.append(line)                                                                        ## 将这一行存在缓存中
-            if line.startswith(">"):                                                                        ## 如果是引用标志
-                Quote_Fence = True                                                                          
-            else:                                                                                           ## 否则
+            line = line_deal(line)
+            block_lines.append(line)
+            if line.startswith(">"):
+                Quote_Fence = True
+            else:
                 List_Fence = True
 
-        elif line.split('.')[0].isdigit():                                                                  ## 判断有序列表的标志
-            # 列表
-            line = line_deal(line)                                                                          ## 规范这一行
-            block_lines.append(line)                                                                        ## 将这一行存在缓存中
+        elif line.split('.')[0].isdigit():
+            line = line_deal(line)
+            block_lines.append(line)
             List_Fence = True
 
         else:
-            block_lines.append(line)                                                                        ## 这里只会是表格, 缩进代码, 块级代码
+            block_lines.append(line)
             if line.startswith("|"):
                 Table_Fence = True
             elif line.startswith(' ' * 4):
@@ -87,34 +87,31 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
             else:
                 Code_Fence = True
 
-    def deal_mark_tail_line(line):                                                                          ## 处理已经发现标志后的行
-        nonlocal List_Fence                                                                                 ## 声明外部变量
+    def deal_mark_tail_line(line):
+        nonlocal List_Fence
         nonlocal Quote_Fence
         nonlocal Table_Fence
         nonlocal Code_Fence
         nonlocal Blank_Fence
-        if List_Fence:                                                                                      ## 如果是列表标志
-            # 列表
-            if line.startswith(("* ", "-", "+", " " * 4)) or line.split('.')[0].isdigit():                  ## 判断是否有列表标志
-                line = line_deal(line)                                                                      ## 规范行
-                block_lines.append(line)                                                                    ## 加入缓存
+        if List_Fence:
+            if line.startswith(("* ", "-", "+", " " * 4)) or line.split('.')[0].isdigit():
+                line = line_deal(line)
+                block_lines.append(line)
                 return None
             else:
-                List_Fence = False                                                                          ## 否则结束列表行的收集
-                return tokens['ListToken'](block_lines)                                                     ## 用缓存来构造List的token
+                List_Fence = False
+                return tokens['ListToken'](block_lines)
 
-        elif Quote_Fence:                                                                                   ## 如果是引用标志
-            # 引用
-            if line.strip().startswith('>'):                                                                ## 如果还是引用标志
-                line = line_deal(line)                                                                      ## 规范行
-                block_lines.append(line)                                                                    ## 加入缓存
+        elif Quote_Fence:
+            if line.strip().startswith('>'):
+                line = line_deal(line)
+                block_lines.append(line)
                 return None
-            else:                                                                                           ## 否则
-                Quote_Fence = False                                                                         ## 结束引用行的收集
-                return tokens['QuoteToken'](block_lines)                                                    ## 用缓存来构造Quote的token
+            else:
+                Quote_Fence = False
+                return tokens['QuoteToken'](block_lines)
 
         elif Table_Fence:
-            # 处理表格块
             # 这里的代码处理没有空行的能再识别接下来的语句块
             if line.startswith("|"):
                 block_lines.append(line)
