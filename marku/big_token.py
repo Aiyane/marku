@@ -71,11 +71,11 @@ class HeadToken(BaseBigToken):
         content = content.split(' #', 1)[0].strip()
         self.level = len(hashes) + 1
         # else:
-            # if lines[-1][0] == '=':
-                # self.level = 2
-            # elif lines[-1][0] == '-':
-                # self.level = 1
-            # content = ' '.join([line.strip() for line in lines[:-1]])
+        # if lines[-1][0] == '=':
+        # self.level = 2
+        # elif lines[-1][0] == '-':
+        # self.level = 1
+        # content = ' '.join([line.strip() for line in lines[:-1]])
 
         super().__init__(content, little_token.deal_with_line)
 
@@ -87,7 +87,8 @@ class HeadToken(BaseBigToken):
                 and lines[0].find('# ') != -1):
             return True
         return len(lines) > 1 and (lines[-1].startswith('---')
-                                or lines[-1].startswith('==='))
+                                   or lines[-1].startswith('==='))
+
 
 class QuoteToken(BaseBigToken):
     """引用Token, 处理的是例如('> ')这样的引用
@@ -350,5 +351,4 @@ _tokens_ = {
     "ParagraphToken":   ParagraphToken
 }
 
-_tokens = [
-]
+_tokens = [tok for tok in _tokens_.values() if tok != ParagraphToken]
