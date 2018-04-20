@@ -8,10 +8,12 @@ Marku的简单使用
 import my_token
 from marku import Marku
 import os
-import webbrowser  # 打开浏览器
+# import webbrowser  # 打开浏览器
+from flask import Flask
+app = Flask(__name__)
 
 # 获得当前路径
-loc = os.getcwd()
+# loc = os.getcwd()
 
 # 扩展html标签的class属性值
 tokenClass = {
@@ -29,17 +31,18 @@ tokenClass = {
 }
 
 
+@app.route('/')
 def main():
-    md = Marku(loc + "/test2.md")
+    md = Marku("test2.md")
     # 增加class属性值
     md.addClass(tokenClass)
     # 增加自定义语法
     md.add_extra(my_token)
     # 渲染输出
-    md.render(loc + "/out.html")
+    return md.render()
     # 浏览器打开
-    webbrowser.open(loc + "/out.html")
+    # webbrowser.open(loc + "/out.html")
 
 
 if __name__ == '__main__':
-    main()
+    app.run()
