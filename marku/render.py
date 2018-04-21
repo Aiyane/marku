@@ -49,30 +49,31 @@ class BaseRender(object):
         return self.render_map[token.__class__.__name__](self, token)
 
     def rendered(self, token, css='', other='', highlight=True):
-        if css == '':
-            import os
-            with open(os.path.dirname(os.path.realpath(__file__)) + '/style.css', 'r', encoding='utf8') as f:
-                css = f.read()
+        #         if css == '':
+        #             import os
+        #             with open(os.path.dirname(os.path.realpath(__file__)) + '/style.css', 'r', encoding='utf8') as f:
+        #                 css = f.read()
 
-        if highlight:
-            _highlight = """<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
-<script >hljs.initHighlightingOnLoad();</script>"""
-        else:
-            _highlight = ''
+        #         if highlight:
+        #             _highlight = """<link rel="stylesheet"
+        # href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/default.min.css">
+        # <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+        # <script >hljs.initHighlightingOnLoad();</script>"""
+        #         else:
+        #             _highlight = ''
 
-        content = """<!doctype html>
-        <html><head><meta charset="utf-8">
-        {highlight}{other}
-        <style>{css}</style>
-        </head><body id="container" class="export export-html">
-        """.format(css=css, other=other, highlight=_highlight)
-        content += self._render(token)
-        content += """
-        </body></html>
-        """
-        return content
+        #         content = """<!doctype html>
+        #         <html><head><meta charset="utf-8">
+        #         {highlight}{other}
+        #         <style>{css}</style>
+        #         </head><body id="container" class="export export-html">
+        #         """.format(css=css, other=other, highlight=_highlight)
+        #         content += self._render(token)
+        #         content += """
+        #         </body></html>
+        #         """
+        #         return content
+        return self._render(token)
 
     def render_line(self, token):
         """

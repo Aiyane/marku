@@ -98,6 +98,10 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
                 line = line_deal(line)
                 block_lines.append(line)
                 return None
+            elif line.strip().startswith(("* ", "-", "+")):
+                line = line_deal(line)
+                block_lines.append(line)
+                return None
             else:
                 List_Fence = False
                 return tokens['ListToken'](block_lines)
@@ -219,7 +223,7 @@ def line_deal(line):
     elif line.strip().split('.')[0].isdigit():
         num, content = line.split('.', 1)
         line = num + '. ' + content.strip()
-    elif line.strip()[1] != ' ':
+    elif len(line.strip()) > 1 and line.strip()[1] != ' ':
         title = line.strip()[0]
         line = line.split(title, 1)[0] + title + ' ' + line.split(title, 1)[1]
     return line

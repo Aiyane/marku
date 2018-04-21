@@ -234,12 +234,18 @@ class ListToken(BaseBigToken):
                     list_buffer.clear()
                 yield ListItem(line)  # 把这一行yield出去
 
-            elif line.startswith(' ' * 4):
+            elif line.startswith(' '*4):
                 line = line[4:]
                 list_buffer.append(line)
 
             else:
-                list_buffer.append(line)  # 自动算作子行
+                list_buffer.append(line.strip())  # 自动算作子行
+                # else:
+                #     yield ListToken([' '*4 + line.strip()])
+                # if list_buffer:
+                #     yield ListToken(list_buffer)
+                #     list_buffer.clear()
+                # yield ListToken(line.strip())
 
         if list_buffer:
             yield ListToken(list_buffer)
@@ -248,7 +254,7 @@ class ListToken(BaseBigToken):
     @staticmethod
     def has_leader(line):
         return line.startswith(
-            ('- ', '* ', '+ ')) or line.split(' ', 1)[0][:-1].isdigit()
+            ('-', '*', '+')) or line.split(' ', 1)[0][:-1].isdigit()
 
     @staticmethod
     def match(lines):

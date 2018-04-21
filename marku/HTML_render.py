@@ -69,36 +69,36 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def HeadTokenRender(self, token):
-        text = '<h{level} class="{hClass}">{inner}</h{level}>\n'
+        text = '<h{level} class="{hClass}">{inner}</h{level}>'
         inner = self.render_line(token)
         return text.format(
             hClass=self.tokenClass('hClass'), level=token.level, inner=inner)
 
     @staticmethod
     def QuoteTokenRender(self, token):
-        text = '<blockquote class="{blockquoteClass}">\n{inner}</blockquote>\n'
+        text = '<blockquote class="{blockquoteClass}">{inner}</blockquote>'
         return text.format(
             blockquoteClass=self.tokenClass('blockquoteClass'),
             inner=self.render_line(token))
 
     @staticmethod
     def BlockCodeTokenRender(self, token):
-        text = '<pre class="{preClass}">\n<code {attr}>\n{inner}</code>\n</pre>\n'
+        text = '<pre class="{preClass}"><code {attr}>{inner}</code></pre>'
         if token.language:
             attr = 'class="{}"'.format('lang-{}'.format(token.language))
         else:
             attr = ''
         inner = self.render_line(token)
         return text.format(
-            preClass=self.tokenClass('preClass'), attr=attr, inner=inner)
+            preClass=self.tokenClass('preClass'), attr=attr, inner=inner).replace('\n', '<br>')
 
     @staticmethod
     def SeparatorTokenRender(self, token):
-        return '<hr>\n'
+        return '<hr>'
 
     @staticmethod
     def ListTokenRender(self, token):
-        text = '<{tag}{attr}>\n{inner}</{tag}>\n'
+        text = '<{tag}{attr}>{inner}</{tag}>'
         if token.start:
             tag = 'ol'
             attr = ' start="{}"'.format(token.start)
@@ -110,15 +110,15 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def TableTokenRender(self, token):
-        text = '<table class="{tableClass}">\n{inner}</table>\n'
+        text = '<table class="{tableClass}">{inner}</table>'
         if token.has_header:
-            head_text = '<thead>\n{inner}</thead>\n'
+            head_text = '<thead>{inner}</thead>'
             header = token.kids[0]
             head_inner = self.TableRowRender(self, header, True)
             head_rendered = head_text.format(inner=head_inner)
         else:
             head_rendered = ''
-        body_text = '<tbody>\n{inner}</tbody>\n'
+        body_text = '<tbody>{inner}</tbody>'
         body_inner = self.render_line(token)
         body_rendered = body_text.format(inner=body_inner)
         return text.format(
@@ -131,18 +131,18 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def ParagraphTokenRender(self, token):
-        return '<p class="{pClass}">{}</p>\n'.format(
+        return '<p class="{pClass}">{}</p>'.format(
             self.render_line(token), pClass=self.tokenClass('pClass'))
 
     @staticmethod
     def ListItemRender(self, token):
-        return '<li>{}</li>\n'.format(self.render_line(token))
+        return '<li>{}</li>'.format(self.render_line(token))
 
     @staticmethod
     def TableRowRender(self, token, is_header=False):
         if not is_header and token.header:
             return ""
-        text = '<tr>\n{inner}</tr>\n'
+        text = '<tr>{inner}</tr>'
         inner = ''.join(
             [self.TableCellRender(self, kid, is_header) for kid in token.kids])
         return text.format(inner=inner)
@@ -161,7 +161,7 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def TableCellRender(self, token, in_header=False):
-        text = '<{tag}{attr}>{inner}</tag>\n'
+        text = '<{tag}{attr}>{inner}</tag>'
         tag = 'th' if in_header else 'td'
         if token.align == 0:
             align = 'left'

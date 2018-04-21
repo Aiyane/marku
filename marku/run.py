@@ -66,21 +66,35 @@ class Marku(HTMLRenderer):
         output_file: 输出文件路径
         """
 
-        try:
-            with open(self.input_file, 'r', encoding="utf8") as fin:
-                big_token.add_token(HTMLBigToken)
-                little_token.add_token(HTMLLittleToken)
-                if hasattr(self, '_extras'):
-                    tokens = self._get_tokens(self._extras)
-                    self._add_tokens(tokens)
-                else:
-                    super(Marku, self).__init__()
-                AST = big_token.DocumentToken(fin)
-            if self.css_file is not None:
-                with open(self.css_file, 'r', encoding="utf8") as f:
-                    self.css = f.read()
-        except IOError:
-            print("打开文件出错, 请检查文件!")
+        # try:
+        #     with open(self.input_file, 'r', encoding="utf8") as fin:
+        #         big_token.add_token(HTMLBigToken)
+        #         little_token.add_token(HTMLLittleToken)
+        #         if hasattr(self, '_extras'):
+        #             tokens = self._get_tokens(self._extras)
+        #             self._add_tokens(tokens)
+        #         else:
+        #             super(Marku, self).__init__()
+        #         AST = big_token.DocumentToken(fin)
+        #     if self.css_file is not None:
+        #         with open(self.css_file, 'r', encoding="utf8") as f:
+        #             self.css = f.read()
+        # except IOError:
+        big_token.add_token(HTMLBigToken)
+        little_token.add_token(HTMLLittleToken)
+        if hasattr(self, '_extras'):
+            tokens = self._get_tokens(self._extras)
+            self._add_tokens(tokens)
+        else:
+            super(Marku, self).__init__()
+
+        ast = [v.replace('\xa0', ' ') +
+               '\n' for v in self.input_file.split('\n')]
+        AST = big_token.DocumentToken(ast)
+        if self.css_file is not None:
+            with open(self.css_file, 'r', encoding="utf8") as f:
+                self.css = f.read()
+            # print("打开文件出错, 请检查文件!")
 
         rendered = self.rendered(AST, self.css, self.other, self.highlight)
         if output_file is None:
