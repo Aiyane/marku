@@ -45,14 +45,14 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def ImageTokenRender(self, token):
-        text = '<img class="{imgClass}" src="{}" title="{}" alt="{}">'
+        text = '<img class="{imgClass}" src={} title={} alt={}>'
         inner = self.render_line(token)
         return text.format(
             token.src, token.title, inner, imgClass=self.tokenClass('imgClass'))
 
     @staticmethod
     def LinkTokenRender(self, token):
-        text = '<a class="{aClass}" href="{target}" title="{title}">{inner}</a>'
+        text = '<a class="{aClass}" href={target} title={title}>{inner}</a>'
         target = escape_url(token.target)
         title = self.RawTextRender(self, token.title)
         inner = self.render_line(token)
@@ -61,7 +61,7 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def AutoLinkTokenRender(self, token):
-        text = '<a class="{aClass}" href="{target}">{inner}</a>'
+        text = '<a class="{aClass}" href={target}>{inner}</a>'
         target = escape_url(token.target)
         inner = self.render_line(token)
         return text.format(

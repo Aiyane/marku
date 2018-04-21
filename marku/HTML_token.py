@@ -14,7 +14,7 @@ class HTMLBigToken(big_token.BaseBigToken):
     def __init__(self, lines):
         """构造函数
         """
-        self.content = ''.join(lines)
+        self.content = ''.join(lines).replace('\n', '')
 
     @staticmethod
     def match(lines):

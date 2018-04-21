@@ -108,7 +108,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
 
         elif Quote_Fence:
             if line.strip().startswith('>'):
-                line = line_deal(line)
+                line = line_deal(line.strip())
                 block_lines.append(line)
                 return None
             else:
@@ -217,7 +217,7 @@ def line_deal(line):
 
     # 引用行
     elif line.strip().startswith('>'):
-        line = '> ' + line.strip()[1:]
+        line = '> ' + line[1:].strip()
 
     # 列表行
     elif line.strip().split('.')[0].isdigit():
