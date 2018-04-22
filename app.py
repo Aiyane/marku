@@ -6,7 +6,7 @@ Marku的简单使用
 扩展文件my_token中的语法
 """
 # import my_token
-from marku import Marku, Mark
+from marku import Marku
 # import os
 # import webbrowser  # 打开浏览器
 from flask import Flask

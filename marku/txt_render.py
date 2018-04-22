@@ -2,172 +2,195 @@
 # -*- coding: utf-8 -*-
 # txt_render.py
 __aythor__ = 'Aiyane'
-from marku.render import BaseRender
-import html
-from marku import HTML_token
-from itertools import chain
+import re
+from marku import deal_line
+
+# line
+head_pattern = re.compile(r'( *#+)(.*)')
+quote_pattern = re.compile(r'( *>+)(.*)')
+unorder_list_pattern = re.compile(r'( *)(.*)')
+order_list_pattern = re.compile(r'((?: *.*)?\.)(.*)')
+
+# words
+strong_pattern = re.compile(r"(\*\*)(.+?)\*\*(?!\*)|(__)(.+)__(?!_)")
+emphasis_pattern = re.compile(
+    r"(\*)((?:\*\*|[^\*])+?)\*(?!\*)|(_)((?:__|[^_])+?)_")
+img_pattern = re.compile(r'\!\[(.*?)\] *\((.+?)(?: *"(.+?)")?\)')
+del_pattern = re.compile(r"~~(.+?)~~")
+inlinecode_pattern = re.compile(r"`(.+?)`")
+link_pattern = re.compile(
+    r'\[((?:!\[(?:.+?)\][\[\(](?:.+?)[\)\]])|(?:.+?))\] *\((.+?)(?: *"(.+?)")?\)')
+# autolink_pattern = re.compile(r"<([^ ]+?)>")
+pattern_list = [strong_pattern, emphasis_pattern, img_pattern,
+                del_pattern, inlinecode_pattern, link_pattern]
 
 
-class TxtRender(BaseRender):
-    """这是HTML的render, 即渲染各个token成HTML格式"""
+class Mark(object):
+    def __init__(self, content):
+        self.func_dict = {strong_pattern: self.strong, emphasis_pattern: self.emphasis, img_pattern: self.img,
+                          del_pattern: self.delchar, inlinecode_pattern: self.inlinecode, link_pattern: self.link}
 
-    def __init__(self, *extras):
-        """构造函数 """
-        HTMLToken = self._get_tokens(HTML_token)
-        super().__init__(*chain(HTMLToken, extras))
+    def paragraph(self, lines):
+        # 有换行的段落, 显示为一行
+        # 多行
+        return deal_line(' '.join(lines), self.func_dict)
 
-    @staticmethod
-    def StrongTokenRender(self, token):
-        text = '<strong>**{}**</strong>'
-        return text.format(self.render_line(token))
+    def block_code(self, lines):
+        # 多行
+        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(149, 204, 94);">', deal_line(x, self.func_dict), '</p>']), lines))
 
-    @staticmethod
-    def EmphasisTokenRender(self, token):
-        text = '<em>*{}*</em>'
-        return text.format(self.render_line(token))
+    def tab_code(self, lines):
+        # 多行
+        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(134, 134, 134);">', deal_line(x, self.func_dict), '</p>']), lines))
 
-    @staticmethod
-    def EscapeCharTokenRender(self, token):
-        return self.render_line(token)
+    def head(self, line):
+        # 一行
+        match_obj = head_pattern.match(line)
+        tag = match_obj.group(1)
+        content = deal_line(match_obj.group(2), self.func_dict)
+        level = str(tag.count('#'))
+        return ''.join(['<h', level, '>', '<span style="color: rgba(102, 128, 153, 0.4);">', tag,
+                        '</span>', '<span style="color: rgb(248, 187, 57);">', content, '</span></h', level, '>'])
 
-    @staticmethod
-    def InlineCodeTokenRender(self, token):
-        text = '<code>`{}`</code>'
-        return text.format(self.render_line(token))
+    def quote(self, line):
+        # 一行
+        match_obj = quote_pattern.match(line)
+        tag = match_obj.group(1)
+        level = str(tag.count('>'))
+        tag = tag.replace(">", "&gt;")
+        content = deal_line(match_obj.group(2), self.func_dict)
+        return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag,
+                        '</span><span style="color: rgb(219, 120, 77);">', content, '</span></p>'])
 
-    @staticmethod
-    def DeleTokenRender(self, token):
-        text = '<del>~~{}~~</del>'
-        return text.format(self.render_line(token))
+    def underline(self, line):
+        # 一行
+        return ''.join(['<p style="color: rgba(139, 158, 177, 0.8);">', line, '</p>'])
 
-    @staticmethod
-    def ImageTokenRender(self, token):
-        text = '<span style="color: bule;">![{}]({}&nbsp;"{}")</span><br>'
-        inner = self.render_line(token)
-        return text.format(inner, token.src, token.title)
+    def unorder_list(self, line):
+        # 一行
+        match_obj = unorder_list_pattern.match(line)
+        content = deal_line(match_obj.group(2), self.func_dict)
+        tag = match_obj.group(1)+content[0]
+        return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>', content, '</p>'])
 
-    @staticmethod
-    def LinkTokenRender(self, token):
-        text = '<span style="color: bule;">[{}]({}&nbsp;"{}")</span>'
-        target = escape_url(token.target)
-        title = self.RawTextRender(self, token.title)
-        inner = self.render_line(token)
-        return text.format(inner, target, title)
+    def order_list(self, line):
+        # 一行
+        match_obj = order_list_pattern.match(line)
+        tag = match_obj.group(1)
+        content = deal_line(match_obj.group(2), self.func_dict)
+        return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>', content, '</p>'])
 
-    @staticmethod
-    def AutoLinkTokenRender(self, token):
-        text = '<span style="color: bule;">&lt;{}&gt;</span>'
-        target = escape_url(token.target)
-        return text.format(target)
+    def strong(self, match_obj):
+        # match_obj
+        tag, content = [group for group in match_obj.groups()
+                        if group is not None]
+        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">', tag, '</sapn><b style="color: rgb(219, 120, 77);">',
+                        deal_line(content, self.func_dict), '</b><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
 
-    @staticmethod
-    def HeadTokenRender(self, token):
-        text = '<h{level}>{star}&nbsp;{inner}</h{level}><br>'
-        inner = self.render_line(token)
-        star = '#'*int(token.level)
-        return text.format(level=token.level, star=star, inner=inner)
+    def emphasis(self, match_obj):
+        # match_obj
+        tag, content = [group for group in match_obj.groups()
+                        if group is not None]
+        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span><em>',
+                        deal_line(content, self.func_dict), '</em><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
 
-    @staticmethod
-    def QuoteTokenRender(self, token):
-        text = '<span>&gt;&nbsp;{inner}</span><br>'
-        return text.format(inner=self.render_line(token))
+    def link(self, match_obj):
+        # match_obj
+        content = match_obj.group(1)
+        target = match_obj.group(2)
+        title = match_obj.group(3)
+        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">[<span style="color: rgb(248, 187, 57);">',
+                        deal_line(content, self.func_dict), '</span>](', target, ' ', title, '</span>'])
 
-    @staticmethod
-    def BlockCodeTokenRender(self, token):
-        text = '<span>```{attr}\n{inner}\n```</span><br>'
-        if token.language:
-            attr = 'class={}'.format('lang-{}'.format(token.language))
-        else:
-            attr = ''
-        inner = self.render_line(token)
-        return text.format(attr=attr, inner=inner).replace('\n', '<br>')
+    def inlinecode(self, word):
+        # word
+        return ''.join(['<span style="color: rgb(149, 204, 94); background-color: rgba(0, 0, 0, 0.33);">', word, '</span>'])
 
-    @staticmethod
-    def SeparatorTokenRender(self, token):
-        return '---<br>'
+    def delchar(self, word):
+        # word
+        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">~~</span><del>', deal_line(word[2:-2], self.func_dict),
+                        '</del><span style="color: rgba(139, 158, 177, 0.8);">~~</span>'])
 
-    @staticmethod
-    def ListTokenRender(self, token):
-        text = '<{tag}{attr}>{inner}</{tag}><br>'
-        if token.start:
-            tag = 'ol'
-            attr = ' start="{}"'.format(token.start)
-        else:
-            tag = 'ul'
-            attr = ''
-        inner = self.render_line(token)
-        return text.format(tag=tag, attr=attr, inner=inner)
+    def img(self, word):
+        # word
+        return ''.join(['<span style="background-color: rgba(0, 0, 0, 0.33);color: rgba(139, 158, 177, 0.8);">', word, '</span>'])
 
-    @staticmethod
-    def TableTokenRender(self, token):
-        text = '<table>{inner}</table><br>'
-        if token.has_header:
-            head_text = '<thead>{inner}</thead>'
-            header = token.kids[0]
-            head_inner = self.TableRowRender(self, header, True)
-            head_rendered = head_text.format(inner=head_inner)
-        else:
-            head_rendered = ''
-        body_text = '<tbody>{inner}</tbody>'
-        body_inner = self.render_line(token)
-        body_rendered = body_text.format(inner=body_inner)
-        return text.format(inner=head_rendered + body_rendered)
+    def deal_lines(self, lines):
+        res = []
+        buffer = []
+        code = False
+        tabcode = False
 
-    @staticmethod
-    def RawTextRender(self, token):
-        return html.escape(token.content)
+        def init_buffer():
+            nonlocal code
+            nonlocal tabcode
+            if buffer:
+                if code:
+                    res.append(self.block_code(buffer))
+                    code = False
+                elif tabcode:
+                    res.append(self.tab_code(buffer))
+                    tabcode = False
+                else:
+                    res.append(self.paragraph(buffer))
+                buffer.clear()
 
-    @staticmethod
-    def ParagraphTokenRender(self, token):
-        return '<span>{}</span><br>'.format(self.render_line(token))
+        for line in lines.split('\n'):
+            line = line.replace('\xa0', ' ')
+            if code:
+                if line == '```':
+                    code = False
+                    res.append(self.block_code(buffer))
+                    buffer.clear()
+                else:
+                    buffer.append(line)
+                continue
 
-    @staticmethod
-    def ListItemRender(self, token):
-        return '<li>{}</li>'.format(self.render_line(token))
+            if tabcode:
+                if line.startswith(' '*4):
+                    buffer.append(line)
+                else:
+                    res.append(self.tab_code(buffer))
+                    tabcode = False
+                continue
 
-    @staticmethod
-    def TableRowRender(self, token, is_header=False):
-        if not is_header and token.header:
-            return ""
-        text = '<tr>{inner}</tr>'
-        inner = ''.join(
-            [self.TableCellRender(self, kid, is_header) for kid in token.kids])
-        return text.format(inner=inner)
+            if line.strip()[0] == '#':
+                init_buffer()
+                res.append(self.head(line))
+                continue
 
-    @staticmethod
-    def QuoteItemRender(self, token):
-        return '<span>&gt;&nbsp;{}</span><br>'.format(self.render_line(token))
+            if line.strip()[0] == '>':
+                init_buffer()
+                res.append(self.quote(line))
+                continue
 
-    @staticmethod
-    def HTMLBigTokenRender(self, token):
-        return html.escape(token.content)
+            if line.strip()[0] in ('+', '-'):
+                init_buffer()
+                res.append(self.unorder_list(line))
+                continue
 
-    @staticmethod
-    def HTMLLittleTokenRender(self, token):
-        return html.escape(token.content)
+            if line.strip().split('.', 1)[0].isdigit():
+                init_buffer()
+                res.append(self.order_list(line))
+                continue
 
-    @staticmethod
-    def TableCellRender(self, token, in_header=False):
-        text = '<{tag}{attr}>{inner}</tag>'
-        tag = 'th' if in_header else 'td'
-        if token.align == 0:
-            align = 'left'
-        elif token.align == 1:
-            align = 'center'
-        elif token.align == 2:
-            align = 'right'
-        attr = ' align="{}"'.format(align)
-        inner = self.render_line(token)
-        return text.format(tag=tag, attr=attr, inner=inner)
+            if line.strip() in ('---', '***', '* * *'):
+                init_buffer()
+                res.append(self.underline(line))
+                continue
 
-    @staticmethod
-    def DocumentTokenRender(self, token):
-        return self.render_line(token)
+            if line.strip().startswith("```"):
+                init_buffer()
+                buffer.append(line)
+                code = True
+                continue
 
+            if line.startswith(' '*4):
+                init_buffer()
+                buffer.append(line)
+                tabcode = True
 
-def escape_url(raw):
-    """
-    进行url编码
-    """
-    from urllib.parse import quote
-    return quote(raw, safe='/#:')
+            buffer.append(line)
+
+        init_buffer()
+        return ''.join(res)
