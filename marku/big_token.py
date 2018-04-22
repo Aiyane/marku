@@ -165,7 +165,7 @@ class BlockCodeToken(BaseBigToken):
             self.language = lines[0].strip()[3:]
         else:
             content = ''.join([line[4:] for line in lines])
-            self.language = ''
+            self.language = 'tab'
         self._kids = (little_token.RawText(content), )
 
     @staticmethod
@@ -254,7 +254,7 @@ class ListToken(BaseBigToken):
     @staticmethod
     def has_leader(line):
         return line.startswith(
-            ('-', '*', '+')) or line.split(' ', 1)[0][:-1].isdigit()
+            ('-', '+')) or line.split(' ', 1)[0][:-1].isdigit()
 
     @staticmethod
     def match(lines):

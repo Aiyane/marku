@@ -64,7 +64,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         elif line.strip() in ("---", "===", "***", "* * *"):
             return tokens["SeparatorToken"]([line.strip()])
 
-        elif line.startswith(("-", "* ", "+", ">")):
+        elif line.startswith(("-", "+", ">")):
             # 列表或者引用
             line = line_deal(line)
             block_lines.append(line)
@@ -94,11 +94,11 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         nonlocal Code_Fence
         nonlocal Blank_Fence
         if List_Fence:
-            if line.startswith(("* ", "-", "+", " " * 4)) or line.split('.')[0].isdigit():
-                line = line_deal(line)
-                block_lines.append(line)
-                return None
-            elif line.strip().startswith(("* ", "-", "+")):
+            # if line.startswith(("* ", "-", "+", " " * 4)) or line.split('.')[0].isdigit():
+            #     line = line_deal(line)
+            #     block_lines.append(line)
+            #     return None
+            if line.strip().startswith(("-", "+")) or line.strip().split('.')[0].isdigit():
                 line = line_deal(line)
                 block_lines.append(line)
                 return None
@@ -152,7 +152,7 @@ def init_deal_with(lines, tokenList, tokens, init_token, root=None):
         if not isinstance(token, bool):
             yield token
             block_lines.clear()
-            if isinstance(token, tokens['BlockCodeToken']):
+            if isinstance(token, tokens['BlockCodeToken']) and token.language != 'tab':
                 continue
 
         # ================================================
@@ -231,7 +231,7 @@ def line_deal(line):
 
 def has_mark(line):
     # 判断这一行开头是否有特殊标记
-    if line.startswith(('-', '* ', '+', '>', '```', '|', ' ' * 4, '#')) or not line.strip() \
+    if line.startswith(('-', '+', '>', '```', '|', ' ' * 4, '#')) or not line.strip() \
             or line.split('.')[0].isdigit() or line.strip() in ("---", "===", "***", "* * *"):
         return True
     return False

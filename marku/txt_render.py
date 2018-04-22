@@ -1,5 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env/python3
 # -*- coding: utf-8 -*-
+# txt_render.py
 __aythor__ = 'Aiyane'
 from marku.render import BaseRender
 import html
@@ -7,7 +8,7 @@ from marku import HTML_token
 from itertools import chain
 
 
-class HTMLRenderer(BaseRender):
+class TxtRender(BaseRender):
     """这是HTML的render, 即渲染各个token成HTML格式"""
 
     def __init__(self, *extras):
@@ -17,15 +18,13 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def StrongTokenRender(self, token):
-        text = '<strong class="{strongClass}">{}</strong>'
-        return text.format(
-            self.render_line(token), strongClass=self.tokenClass('strongClass'))
+        text = '<strong>**{}**</strong>'
+        return text.format(self.render_line(token))
 
     @staticmethod
     def EmphasisTokenRender(self, token):
-        text = '<em class="{emClass}">{}</em>'
-        return text.format(
-            self.render_line(token), emClass=self.tokenClass('emClass'))
+        text = '<em>*{}*</em>'
+        return text.format(self.render_line(token))
 
     @staticmethod
     def EscapeCharTokenRender(self, token):
@@ -33,57 +32,49 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def InlineCodeTokenRender(self, token):
-        text = '<code class="{codeClass}">{}</code>'
-        return text.format(
-            self.render_line(token), codeClass=self.tokenClass('codeClass'))
+        text = '<code>`{}`</code>'
+        return text.format(self.render_line(token))
 
     @staticmethod
     def DeleTokenRender(self, token):
-        text = '<del class="{delClass}">{}</del>'
-        return text.format(
-            self.render_line(token), delClass=self.tokenClass('delClass'))
+        text = '<del>~~{}~~</del>'
+        return text.format(self.render_line(token))
 
     @staticmethod
     def ImageTokenRender(self, token):
-        text = '<img class="{imgClass}" src={} title={} alt={}>'
+        text = '<span style="color: bule;">![{}]({}&nbsp;"{}")</span><br>'
         inner = self.render_line(token)
-        return text.format(
-            token.src, token.title, inner, imgClass=self.tokenClass('imgClass'))
+        return text.format(inner, token.src, token.title)
 
     @staticmethod
     def LinkTokenRender(self, token):
-        text = '<a class="{aClass}" href={target} title={title}>{inner}</a>'
+        text = '<span style="color: bule;">[{}]({}&nbsp;"{}")</span>'
         target = escape_url(token.target)
         title = self.RawTextRender(self, token.title)
         inner = self.render_line(token)
-        return text.format(
-            aClass=self.tokenClass('aClass'), target=target, title=title, inner=inner)
+        return text.format(inner, target, title)
 
     @staticmethod
     def AutoLinkTokenRender(self, token):
-        text = '<a class="{aClass}" href={target}>{inner}</a>'
+        text = '<span style="color: bule;">&lt;{}&gt;</span>'
         target = escape_url(token.target)
-        inner = self.render_line(token)
-        return text.format(
-            aClass=self.tokenClass('aClass'), target=target, inner=inner)
+        return text.format(target)
 
     @staticmethod
     def HeadTokenRender(self, token):
-        text = '<h{level} class="{hClass}">{inner}</h{level}>'
+        text = '<h{level}>{star}&nbsp;{inner}</h{level}><br>'
         inner = self.render_line(token)
-        return text.format(
-            hClass=self.tokenClass('hClass'), level=token.level, inner=inner)
+        star = '#'*int(token.level)
+        return text.format(level=token.level, star=star, inner=inner)
 
     @staticmethod
     def QuoteTokenRender(self, token):
-        text = '<blockquote class="{blockquoteClass}">{inner}</blockquote>'
-        return text.format(
-            blockquoteClass=self.tokenClass('blockquoteClass'),
-            inner=self.render_line(token))
+        text = '<span>&gt;&nbsp;{inner}</span><br>'
+        return text.format(inner=self.render_line(token))
 
     @staticmethod
     def BlockCodeTokenRender(self, token):
-        text = '<pre><code {attr}>{inner}</code></pre>'
+        text = '<span>```{attr}\n{inner}\n```</span><br>'
         if token.language:
             attr = 'class={}'.format('lang-{}'.format(token.language))
         else:
@@ -93,11 +84,11 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def SeparatorTokenRender(self, token):
-        return '<hr>'
+        return '---<br>'
 
     @staticmethod
     def ListTokenRender(self, token):
-        text = '<{tag}{attr}>{inner}</{tag}>'
+        text = '<{tag}{attr}>{inner}</{tag}><br>'
         if token.start:
             tag = 'ol'
             attr = ' start="{}"'.format(token.start)
@@ -109,7 +100,7 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def TableTokenRender(self, token):
-        text = '<table class="{tableClass}">{inner}</table>'
+        text = '<table>{inner}</table><br>'
         if token.has_header:
             head_text = '<thead>{inner}</thead>'
             header = token.kids[0]
@@ -120,9 +111,7 @@ class HTMLRenderer(BaseRender):
         body_text = '<tbody>{inner}</tbody>'
         body_inner = self.render_line(token)
         body_rendered = body_text.format(inner=body_inner)
-        return text.format(
-            inner=head_rendered + body_rendered,
-            tableClass=self.tokenClass('tableClass'))
+        return text.format(inner=head_rendered + body_rendered)
 
     @staticmethod
     def RawTextRender(self, token):
@@ -130,8 +119,7 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def ParagraphTokenRender(self, token):
-        return '<p class="{pClass}">{}</p>'.format(
-            self.render_line(token), pClass=self.tokenClass('pClass'))
+        return '<span>{}</span><br>'.format(self.render_line(token))
 
     @staticmethod
     def ListItemRender(self, token):
@@ -148,15 +136,15 @@ class HTMLRenderer(BaseRender):
 
     @staticmethod
     def QuoteItemRender(self, token):
-        return '<p>{}</p>'.format(self.render_line(token))
+        return '<span>&gt;&nbsp;{}</span><br>'.format(self.render_line(token))
 
     @staticmethod
     def HTMLBigTokenRender(self, token):
-        return token.content
+        return html.escape(token.content)
 
     @staticmethod
     def HTMLLittleTokenRender(self, token):
-        return token.content
+        return html.escape(token.content)
 
     @staticmethod
     def TableCellRender(self, token, in_header=False):

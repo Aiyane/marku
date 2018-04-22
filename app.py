@@ -5,8 +5,8 @@ Marku的简单使用
 为渲染的html标签添加class属性值
 扩展文件my_token中的语法
 """
-import my_token
-from marku import Marku
+# import my_token
+from marku import Marku, Mark
 # import os
 # import webbrowser  # 打开浏览器
 from flask import Flask
@@ -42,17 +42,18 @@ app = Flask(__name__)
 def main():
     if request.method == 'POST':
         text = request.form.get('text')
+        # md0 = Mark(text, txt_render=True).render()
         md = Marku(text)
         # 增加class属性值
         # md.addClass(tokenClass)
         # 增加自定义语法
-        md.add_extra(my_token)
+        # md.add_extra(my_token)
         # 浏览器打开
         # webbrowser.open(loc + "/out.html")
 
         # 渲染输出
         return jsonify({'markdown': md.render()})
-    return render_template('index.html')
+    return render_template('index.html', md='')
 
 
 if __name__ == '__main__':

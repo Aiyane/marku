@@ -37,18 +37,25 @@ class BaseRender(object):
             'QuoteItem':        self.QuoteItemRender,
             'DocumentToken':    self.DocumentTokenRender
         }
+        self.id_index2 = self.id_index = -1
         self._extras = extras
         for token in extras:
             func = getattr(self, token.__name__ + 'Render')
             self.render_map[token.__name__] = func
 
-    def _render(self, token):
+    def _render(self, token, txt_render):
         """
         render入口
         """
-        return self.render_map[token.__class__.__name__](self, token)
+        self.id_index += 1
+        if txt_render:
+            self.id_index2 += 1
+            return ''.join(
+            ['<span id=', str(self.id_index2), '>', self.render_map[token.__class__.__name__](self, token), '</span>'])
+        return ''.join(
+            ['<span id=num-', str(self.id_index), '>', self.render_map[token.__class__.__name__](self, token), '</span>'])
 
-    def rendered(self, token, css='', other='', highlight=True):
+    def rendered(self, token, css='', other='', highlight=True, txt_render=False):
         #         if css == '':
         #             import os
         #             with open(os.path.dirname(os.path.realpath(__file__)) + '/style.css', 'r', encoding='utf8') as f:
@@ -73,13 +80,13 @@ class BaseRender(object):
         #         </body></html>
         #         """
         #         return content
-        return self._render(token)
+        return self._render(token, txt_render)
 
     def render_line(self, token):
         """
         递归调用子Token
         """
-        rendered = [self._render(kid) for kid in token.kids]
+        rendered = [self._render(kid, self.txt_render) for kid in token.kids]
         return ''.join(rendered)
 
     def tokenClass(self, name):
