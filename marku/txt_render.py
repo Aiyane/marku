@@ -3,7 +3,7 @@
 # txt_render.py
 __aythor__ = 'Aiyane'
 import re
-from marku import deal_line
+# from marku import deal_line
 
 # line
 head_pattern = re.compile(r'( *#+)(.*)')
@@ -21,33 +21,31 @@ inlinecode_pattern = re.compile(r"`(.+?)`")
 link_pattern = re.compile(
     r'\[((?:!\[(?:.+?)\][\[\(](?:.+?)[\)\]])|(?:.+?))\] *\((.+?)(?: *"(.+?)")?\)')
 # autolink_pattern = re.compile(r"<([^ ]+?)>")
-pattern_list = [strong_pattern, emphasis_pattern, img_pattern,
-                del_pattern, inlinecode_pattern, link_pattern]
 
 
 class Mark(object):
-    def __init__(self, content):
+    def __init__(self):
         self.func_dict = {strong_pattern: self.strong, emphasis_pattern: self.emphasis, img_pattern: self.img,
                           del_pattern: self.delchar, inlinecode_pattern: self.inlinecode, link_pattern: self.link}
 
     def paragraph(self, lines):
         # 有换行的段落, 显示为一行
         # 多行
-        return deal_line(' '.join(lines), self.func_dict)
+        return self.deal_line(' '.join(lines))
 
     def block_code(self, lines):
         # 多行
-        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(149, 204, 94);">', deal_line(x, self.func_dict), '</p>']), lines))
+        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(149, 204, 94);">', self.deal_line(x), '</p>']), lines))
 
     def tab_code(self, lines):
         # 多行
-        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(134, 134, 134);">', deal_line(x, self.func_dict), '</p>']), lines))
+        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(134, 134, 134);">', self.deal_line(x), '</p>']), lines))
 
     def head(self, line):
         # 一行
         match_obj = head_pattern.match(line)
         tag = match_obj.group(1)
-        content = deal_line(match_obj.group(2), self.func_dict)
+        content = self.deal_line(match_obj.group(2))
         level = str(tag.count('#'))
         return ''.join(['<h', level, '>', '<span style="color: rgba(102, 128, 153, 0.4);">', tag,
                         '</span>', '<span style="color: rgb(248, 187, 57);">', content, '</span></h', level, '>'])
@@ -58,7 +56,7 @@ class Mark(object):
         tag = match_obj.group(1)
         level = str(tag.count('>'))
         tag = tag.replace(">", "&gt;")
-        content = deal_line(match_obj.group(2), self.func_dict)
+        content = self.deal_line(match_obj.group(2))
         return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag,
                         '</span><span style="color: rgb(219, 120, 77);">', content, '</span></p>'])
 
@@ -69,7 +67,7 @@ class Mark(object):
     def unorder_list(self, line):
         # 一行
         match_obj = unorder_list_pattern.match(line)
-        content = deal_line(match_obj.group(2), self.func_dict)
+        content = self.deal_line(match_obj.group(2))
         tag = match_obj.group(1)+content[0]
         return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>', content, '</p>'])
 
@@ -77,7 +75,7 @@ class Mark(object):
         # 一行
         match_obj = order_list_pattern.match(line)
         tag = match_obj.group(1)
-        content = deal_line(match_obj.group(2), self.func_dict)
+        content = self.deal_line(match_obj.group(2))
         return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>', content, '</p>'])
 
     def strong(self, match_obj):
@@ -85,14 +83,14 @@ class Mark(object):
         tag, content = [group for group in match_obj.groups()
                         if group is not None]
         return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">', tag, '</sapn><b style="color: rgb(219, 120, 77);">',
-                        deal_line(content, self.func_dict), '</b><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
+                        self.deal_line(content), '</b><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
 
     def emphasis(self, match_obj):
         # match_obj
         tag, content = [group for group in match_obj.groups()
                         if group is not None]
         return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span><em>',
-                        deal_line(content, self.func_dict), '</em><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
+                        self.deal_line(content), '</em><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
 
     def link(self, match_obj):
         # match_obj
@@ -100,19 +98,22 @@ class Mark(object):
         target = match_obj.group(2)
         title = match_obj.group(3)
         return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">[<span style="color: rgb(248, 187, 57);">',
-                        deal_line(content, self.func_dict), '</span>](', target, ' ', title, '</span>'])
+                        self.deal_line(content), '</span>](', target, ' ', title, '</span>'])
 
-    def inlinecode(self, word):
+    def inlinecode(self, match_obj):
         # word
+        word = match_obj.group(0)
         return ''.join(['<span style="color: rgb(149, 204, 94); background-color: rgba(0, 0, 0, 0.33);">', word, '</span>'])
 
-    def delchar(self, word):
+    def delchar(self, match_obj):
         # word
-        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">~~</span><del>', deal_line(word[2:-2], self.func_dict),
+        word = match_obj.group(0)
+        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">~~</span><del>', self.deal_line(word[2:-2]),
                         '</del><span style="color: rgba(139, 158, 177, 0.8);">~~</span>'])
 
-    def img(self, word):
+    def img(self, match_obj):
         # word
+        word = match_obj.group(0)
         return ''.join(['<span style="background-color: rgba(0, 0, 0, 0.33);color: rgba(139, 158, 177, 0.8);">', word, '</span>'])
 
     def deal_lines(self, lines):
@@ -193,4 +194,36 @@ class Mark(object):
             buffer.append(line)
 
         init_buffer()
+        return ''.join(res)
+
+    def init(self, line):
+        s = line.replace("&", "&amp;")
+        s = s.replace(" ", "&nbsp;")
+        s = s.replace("<", "&lt;")
+        s = s.replace(">", "&gt;")
+        s = s.replace('"', "&quot;")
+        s = s.replace('\'', "&#x27;")
+        return s
+
+    def deal_line(self, content):
+        res = []
+        start = end = 0
+        while 1:
+            temp_res = None
+            minIndex = len(content)
+            for pattern in self.func_dict.keys():
+                match_obj = pattern.search(content, start)
+                if match_obj and start <= match_obj.start() < minIndex:
+                    minIndex = match_obj.start()
+                    temp_res = self.func_dict[pattern](match_obj)
+                    end = match_obj.end()
+            # 如果起始位置并不是第一个匹配的位置就在前段生成默认类型
+            if start < minIndex:
+                res.append(self.init(content[start:minIndex]))
+            if not temp_res:
+                break
+            # 如果匹配到了就让起始位置改变， 再考察后面的字符
+            start = end
+            res.append(temp_res)
+
         return ''.join(res)
