@@ -129,6 +129,7 @@
         });
 
         editor.subscribe('editableKeydownTab', function (event, editable) {
+            event.preventDefault(); // a标签屏蔽了默认事件
             var res = "";
             for (var k = 0, length = editable.childNodes.length; k < length; k++) {
                 var kids = editable.childNodes[k];
