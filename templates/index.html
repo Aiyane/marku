@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Marku</title>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <script src="/static/js/medium-editor.js"></script>
+    <link rel="stylesheet" href="/static/css/medium-editor.css">
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #333;
+            height: 100%;
+        }
+
+        font {
+            color: #EBD1B7;
+        }
+
+        .main {
+            width: 98%;
+            padding-left: 2%;
+            height: 100%;
+        }
+
+        .cell {
+            width: 49%;
+            float: left;
+        }
+
+        .editable {
+            outline: none;
+            margin: 0 0 20px 0;
+            line-height: 1.5;
+            padding: 0 0 20px 0;
+            border-bottom: 1px solid #dbdbdb;
+            font-family: Helvetica, Arial, sans-serif;
+            color: #EBD1B7;
+            font-family: "Roboto", "Noto Sans", "Ubuntu", "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif, "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft Yahei";
+            word-wrap: break-word;
+            min-height: 10px;
+            box-sizing: border-box;
+            margin-right: 5%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main">
+
+        <div class="cell" id="cell">
+            <h1 style="color: #F8BB39;">Marku 编辑器</h1>
+            <div class="editable" id="editable"></div>
+        </div>
+
+        <div id="res" style="background-color: #fff; height: 100vh; width: 50%; float: left;">
+            <div class="md" id="container" style="margin: 0;padding-left: 6%; padding-top:3%; padding-bottom:3%;padding-right: 6%;">
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="/static/js/jquery.js"></script>
+
+    <script>
+        var editor = new MediumEditor('.editable', {
+            placeholder: {
+                text: '在此处输入内容...',
+            },
+            toolbar: {
+                allowMultiParagraphSelection: false,
+            }
+        });
+        var editable = document.getElementById('editable')
+        var br = document.createElement('br');
+        editor.subscribe('editableInput', function (event, editable) {
+            var res = "";
+            for (var k = 0, length = editable.childNodes.length; k < length; k++) {
+                var kids = editable.childNodes[k];
+                var rs = kids.getElementsByTagName('line');
+                if (rs.length > 1) {
+                    for (var j = 0, len = rs.length; j < len; j++) {
+                        res += rs[j].textContent + '\n';
+                    }
+                    res += '\n';
+                }
+                else {
+                    if (br.isEqualNode(kids.children[0]) && kids.children.length == 1) {
+                        res += '\n';
+                    }
+                    res += kids.textContent + '\n';
+                }
+            }
+            //console.log(res)
+            var data = {
+                'text': res
+            };
+            $.ajax({
+                type: 'POST',
+                url: '/',
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    var content = JSON.stringify(data['markdown']);
+                    //console.log(content0)
+                    content = content.slice(1, -1);
+                    var container = document.getElementById('container');
+                    //$("#editable").html(content0);
+                    container.innerHTML = content;
+
+                    $('#res').height($(document).height());
+                    $('#cell').height($(document).height());
+                },
+                error: function (xhr, type) {
+                }
+            });
+        });
+
+        editor.subscribe('editableKeydownTab', function (event, editable) {
+            var res = "";
+            for (var k = 0, length = editable.childNodes.length; k < length; k++) {
+                var kids = editable.childNodes[k];
+                var rs = kids.getElementsByTagName('line');
+                if (rs.length > 1) {
+                    for (var j = 0, len = rs.length; j < len; j++) {
+                        res += rs[j].textContent + '\n';
+                    }
+                    res += '\n';
+                }
+                else {
+                    if (br.isEqualNode(kids.children[0]) && kids.children.length == 1) {
+                        res += '\n';
+                    }
+                    res += kids.textContent + '\n';
+                }
+            }
+            //console.log(res)
+            var data = {
+                'text': res
+            };
+            $.ajax({
+                type: 'POST',
+                url: '/',
+                data: data,
+                dataType: 'json',
+                success: function (data) {
+                    var content0 = JSON.stringify(data['mk']);
+                    content0 = content0.slice(1, -1).replace(/\\/g, '');
+                    //console.log(content0)
+                    var cell = document.getElementById('editable');
+                    //$("#editable").html(content0);
+                    cell.innerHTML = content0;
+
+                    $('#res').height($(document).height());
+                    $('#cell').height($(document).height());
+                },
+                error: function (xhr, type) {
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
