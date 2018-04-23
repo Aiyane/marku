@@ -4,7 +4,6 @@ __author__ = 'Aiyane'
 from marku import big_token
 from marku import little_token
 from marku import HTMLRenderer
-from marku import TxtRender
 from marku.HTML_token import HTMLBigToken, HTMLLittleToken
 
 

@@ -6,7 +6,7 @@ Marku的简单使用
 扩展文件my_token中的语法
 """
 # import my_token
-from marku import Marku
+from marku import Marku, Mark
 # import os
 # import webbrowser  # 打开浏览器
 from flask import Flask
@@ -42,8 +42,8 @@ app = Flask(__name__)
 def main():
     if request.method == 'POST':
         text = request.form.get('text')
-        # md0 = Mark(text, txt_render=True).render()
-        md = Marku(text)
+        mk = Mark().deal_lines(text)
+        md = Marku(text).render()
         # 增加class属性值
         # md.addClass(tokenClass)
         # 增加自定义语法
@@ -52,7 +52,7 @@ def main():
         # webbrowser.open(loc + "/out.html")
 
         # 渲染输出
-        return jsonify({'markdown': md.render()})
+        return jsonify({'markdown': md, 'mk': mk})
     return render_template('index.html', md='')
 
 

@@ -3,7 +3,6 @@
 # txt_render.py
 __aythor__ = 'Aiyane'
 import re
-# from marku import deal_line
 
 # line
 head_pattern = re.compile(r'( *#+)(.*)')
@@ -23,6 +22,16 @@ link_pattern = re.compile(
 # autolink_pattern = re.compile(r"<([^ ]+?)>")
 
 
+def init(s):
+    s = s.replace("&", "&amp;")
+    s = s.replace(" ", "&nbsp;")
+    s = s.replace("<", "&lt;")
+    s = s.replace(">", "&gt;")
+    s = s.replace('"', "&quot;")
+    s = s.replace('\'', "&#x27;")
+    return s
+
+
 class Mark(object):
     def __init__(self):
         self.func_dict = {strong_pattern: self.strong, emphasis_pattern: self.emphasis, img_pattern: self.img,
@@ -31,15 +40,15 @@ class Mark(object):
     def paragraph(self, lines):
         # 有换行的段落, 显示为一行
         # 多行
-        return self.deal_line(' '.join(lines))
+        return ''.join(['<p>', ''.join(map(lambda x: '<line>' + self.deal_line(x) + '</line><br>', lines)), '</p>'])
 
     def block_code(self, lines):
         # 多行
-        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(149, 204, 94);">', self.deal_line(x), '</p>']), lines))
+        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(149, 204, 94);">', x.replace(' ', '&nbsp'), '</p>']), lines))
 
     def tab_code(self, lines):
         # 多行
-        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(134, 134, 134);">', self.deal_line(x), '</p>']), lines))
+        return ''.join(map(lambda x: ''.join(['<p style="color: rgb(134, 134, 134);">', x.replace(' ', '&nbsp'), '</p>']), lines))
 
     def head(self, line):
         # 一行
@@ -50,12 +59,16 @@ class Mark(object):
         return ''.join(['<h', level, '>', '<span style="color: rgba(102, 128, 153, 0.4);">', tag,
                         '</span>', '<span style="color: rgb(248, 187, 57);">', content, '</span></h', level, '>'])
 
+    def table(self, line):
+        # 一行
+        return ''.join(['<p>', line.replace(' ', '&nbsp'), '</p>'])
+
     def quote(self, line):
         # 一行
         match_obj = quote_pattern.match(line)
         tag = match_obj.group(1)
         level = str(tag.count('>'))
-        tag = tag.replace(">", "&gt;")
+        tag = tag.replace(">", "&gt;").replace(' ', '&nbsp')
         content = self.deal_line(match_obj.group(2))
         return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag,
                         '</span><span style="color: rgb(219, 120, 77);">', content, '</span></p>'])
@@ -69,12 +82,12 @@ class Mark(object):
         match_obj = unorder_list_pattern.match(line)
         content = self.deal_line(match_obj.group(2))
         tag = match_obj.group(1)+content[0]
-        return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>', content, '</p>'])
+        return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag.replace(' ', '&nbsp'), '</span>', content[1:], '</p>'])
 
     def order_list(self, line):
         # 一行
         match_obj = order_list_pattern.match(line)
-        tag = match_obj.group(1)
+        tag = match_obj.group(1).replace(' ', '&nbsp')
         content = self.deal_line(match_obj.group(2))
         return ''.join(['<p><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>', content, '</p>'])
 
@@ -82,7 +95,7 @@ class Mark(object):
         # match_obj
         tag, content = [group for group in match_obj.groups()
                         if group is not None]
-        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">', tag, '</sapn><b style="color: rgb(219, 120, 77);">',
+        return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span><b style="color: rgb(219, 120, 77);">',
                         self.deal_line(content), '</b><span style="color: rgba(139, 158, 177, 0.8);">', tag, '</span>'])
 
     def emphasis(self, match_obj):
@@ -98,7 +111,7 @@ class Mark(object):
         target = match_obj.group(2)
         title = match_obj.group(3)
         return ''.join(['<span style="color: rgba(139, 158, 177, 0.8);">[<span style="color: rgb(248, 187, 57);">',
-                        self.deal_line(content), '</span>](', target, ' ', title, '</span>'])
+                        self.deal_line(content), '</span>](', target, ' "', title, '")</span>'])
 
     def inlinecode(self, match_obj):
         # word
@@ -141,6 +154,7 @@ class Mark(object):
             if code:
                 if line == '```':
                     code = False
+                    buffer.append(line)
                     res.append(self.block_code(buffer))
                     buffer.clear()
                 else:
@@ -150,14 +164,23 @@ class Mark(object):
             if tabcode:
                 if line.startswith(' '*4):
                     buffer.append(line)
+                    continue
                 else:
                     res.append(self.tab_code(buffer))
+                    buffer.clear()
                     tabcode = False
+
+            if not line.strip():
+                init_buffer()
                 continue
 
-            if line.strip()[0] == '#':
+            if line.strip()[0] == '|' and line.strip()[-1] == '|':
+                res.append(self.table(line))
+                continue
+
+            if line.strip() in ('---', '***', '* * *'):
                 init_buffer()
-                res.append(self.head(line))
+                res.append(self.underline(line))
                 continue
 
             if line.strip()[0] == '>':
@@ -175,11 +198,6 @@ class Mark(object):
                 res.append(self.order_list(line))
                 continue
 
-            if line.strip() in ('---', '***', '* * *'):
-                init_buffer()
-                res.append(self.underline(line))
-                continue
-
             if line.strip().startswith("```"):
                 init_buffer()
                 buffer.append(line)
@@ -190,20 +208,17 @@ class Mark(object):
                 init_buffer()
                 buffer.append(line)
                 tabcode = True
+                continue
+
+            if line.strip()[0] == '#':
+                init_buffer()
+                res.append(self.head(line))
+                continue
 
             buffer.append(line)
 
         init_buffer()
         return ''.join(res)
-
-    def init(self, line):
-        s = line.replace("&", "&amp;")
-        s = s.replace(" ", "&nbsp;")
-        s = s.replace("<", "&lt;")
-        s = s.replace(">", "&gt;")
-        s = s.replace('"', "&quot;")
-        s = s.replace('\'', "&#x27;")
-        return s
 
     def deal_line(self, content):
         res = []
@@ -219,7 +234,7 @@ class Mark(object):
                     end = match_obj.end()
             # 如果起始位置并不是第一个匹配的位置就在前段生成默认类型
             if start < minIndex:
-                res.append(self.init(content[start:minIndex]))
+                res.append(init(content[start:minIndex]))
             if not temp_res:
                 break
             # 如果匹配到了就让起始位置改变， 再考察后面的字符
