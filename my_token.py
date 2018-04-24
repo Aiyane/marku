@@ -15,14 +15,17 @@ class DotToken(big_token.BaseBigToken):
 
     @staticmethod
     def match(lines):
-        if len(lines) > 1 and lines[0].strip() == '...' and lines[-1].strip() == '...':
+        if len(lines) > 1 and lines[0].strip(
+        ) == '...' and lines[-1].strip() == '...':
             return True
         return False
 
 
 def DotTokenRender(md, token):
-    return '<p>=====我的自定义语法内容=====<br/>' + md.render_line(token) + '</br>=======================</p>'
-    # return '<p>=====我的自定义语法内容=====<br/>' + token.content + '</br>=======================</p>'
+    return '<p>=====我的自定义语法内容=====<br/>' + md.render_line(
+        token) + '</br>=======================</p>'
+    # return '<p>=====我的自定义语法内容=====<br/>' + token.content +
+    # '</br>=======================</p>'
 
 
 # 行内语法
@@ -36,3 +39,17 @@ class NewToken(little_token.BaseLittleToken):
 
 def NewTokenRender(md, token):
     return '<strong>' + token.content + '</strong>'
+
+
+class ProgressBar(big_token.BaseBigToken):
+    def __init__(self, line):
+        title, content = line[1:-1].split('%')
+        self.title = title
+        self.item, self.all_line = content.split('|')
+        pass
+
+    def match(self, lines):
+        if len(lines) == 1:
+            if lines[0] == '%' and lines[-1] == '%':
+                return True
+        return False
