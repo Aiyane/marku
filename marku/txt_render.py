@@ -19,6 +19,7 @@ del_pattern = re.compile(r"~~(.+?)~~")
 inlinecode_pattern = re.compile(r"`(.+?)`")
 link_pattern = re.compile(
     r'\[((?:!\[(?:.+?)\][\[\(](?:.+?)[\)\]])|(?:.+?))\] *\((.+?)(?: *"(.+?)")?\)')
+escapechar_pattern = re.compile(r"\\([\*\(\)\[\]\~])")
 # autolink_pattern = re.compile(r"<([^ ]+?)>")
 
 
@@ -34,7 +35,7 @@ def init(s):
 
 class Mark(object):
     def __init__(self):
-        self.func_dict = {strong_pattern: self.strong, emphasis_pattern: self.emphasis, img_pattern: self.img,
+        self.func_dict = {escapechar_pattern: self.escapechar, strong_pattern: self.strong, emphasis_pattern: self.emphasis, img_pattern: self.img,
                           del_pattern: self.delchar, inlinecode_pattern: self.inlinecode, link_pattern: self.link}
 
     def paragraph(self, lines):
@@ -128,6 +129,10 @@ class Mark(object):
         # word
         word = match_obj.group(0)
         return ''.join(['<span style="background-color: rgba(0, 0, 0, 0.33);color: rgba(139, 158, 177, 0.8);">', word, '</span>'])
+
+    def escapechar(self, match_obj):
+        word = match_obj.group(0)
+        return init(word)
 
     def deal_lines(self, lines):
         res = []
