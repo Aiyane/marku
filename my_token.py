@@ -42,6 +42,9 @@ def NewTokenRender(md, token):
 
 
 class ProgressBar(big_token.BaseBigToken):
+    """
+    进度条处理类
+    """
     def __init__(self, line):
         title, content = line[1:-1].split('%')
         self.title = title
