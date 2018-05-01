@@ -44,15 +44,29 @@ def NewTokenRender(md, token):
 class ProgressBar(big_token.BaseBigToken):
     """
     进度条处理类
+    %
+    title
+    item|20|100
+    item|60|100
+    item|20|100
+    %
     """
-    def __init__(self, line):
-        title, content = line[1:-1].split('%')
-        self.title = title
-        self.item, self.all_line = content.split('|')
-        pass
+
+    def __init__(self, lines):
+        all_content = lines[1:-1]
+        self.title = all_content[0]
+        content = all_content[1:]
+        self.value = dict()
+        for line in content:
+            item, m, a = line.split('|')
+            self.value[item] = [m, a]
 
     def match(self, lines):
-        if len(lines) == 1:
+        if len(lines) > 1:
             if lines[0] == '%' and lines[-1] == '%':
                 return True
         return False
+
+
+def ProgressBarRender(md, token):
+    pass

@@ -13,14 +13,8 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import jsonify
-# from html.parser import HTMLParser
 
-
-# html_parser = HTMLParser()
 app = Flask(__name__)
-
-# 获得当前路径
-# loc = os.getcwd()
 
 # 扩展html标签的class属性值
 # tokenClass = {
