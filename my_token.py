@@ -41,6 +41,35 @@ def NewTokenRender(md, token):
     return '<strong>' + token.content + '</strong>'
 
 
+class TimeTable(big_token.BaseBigToken):
+    """
+    时刻表处理类
+    &
+    title
+    kid_title|content
+    kid_title|content
+    &
+    """
+
+    def __init__(self, lines):
+        all_contents = lines[1:-1]
+        self.title = all_contents.pop(0)
+        self.value = dict()
+        for line in all_contents:
+            key, value = line.strip().split("|")
+            self.value[key] = value
+
+    @staticmethod
+    def match(lines):
+        if len(lines) >= 3 and lines[0] == "&" and lines[-1] == "&":
+            return True
+        return False
+
+
+def TimeTableRender(md, token):
+    pass
+
+
 class ProgressBar(big_token.BaseBigToken):
     """
     进度条处理类
@@ -61,10 +90,10 @@ class ProgressBar(big_token.BaseBigToken):
             item, m, a = line.split('|')
             self.value[item] = [m, a]
 
-    def match(self, lines):
-        if len(lines) > 1:
-            if lines[0] == '%' and lines[-1] == '%':
-                return True
+    @staticmethod
+    def match(lines):
+        if len(lines) > 1 and lines[0] == "%" and lines[-1] == '%':
+            return True
         return False
 
 
